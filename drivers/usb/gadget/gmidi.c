@@ -36,134 +36,35 @@
 
 #include "gadget_chips.h"
 
-
-/*
- * Kbuild is not very cooperative with respect to linking separately
- * compiled library objects into one module.  So for now we won't use
- * separate compilation ... ensuring init/exit sections work to shrink
- * the runtime footprint, and giving us at least some parts of what
- * a "gcc --combine ... part1.c part2.c part3.c ... " build would.
- */
+#include "composite.c"
 #include "usbstring.c"
 #include "config.c"
 #include "epautoconf.c"
+#include "f_midi.c"
 
 /*-------------------------------------------------------------------------*/
 
-
 MODULE_AUTHOR("Ben Williamson");
 MODULE_LICENSE("GPL v2");
-
-#define DRIVER_VERSION "25 Jul 2006"
 
 static const char shortname[] = "g_midi";
 static const char longname[] = "MIDI Gadget";
 
 static int index = SNDRV_DEFAULT_IDX1;
-static char *id = SNDRV_DEFAULT_STR1;
-
-module_param(index, int, 0444);
+module_param(index, int, S_IRUGO);
 MODULE_PARM_DESC(index, "Index value for the USB MIDI Gadget adapter.");
-module_param(id, charp, 0444);
+
+static char *id = SNDRV_DEFAULT_STR1;
+module_param(id, charp, S_IRUGO);
 MODULE_PARM_DESC(id, "ID string for the USB MIDI Gadget adapter.");
 
-/* Some systems will want different product identifiers published in the
- * device descriptor, either numbers or strings or both.  These string
- * parameters are in UTF-8 (superset of ASCII's 7 bit characters).
- */
-
-static ushort idVendor;
-module_param(idVendor, ushort, S_IRUGO);
-MODULE_PARM_DESC(idVendor, "USB Vendor ID");
-
-static ushort idProduct;
-module_param(idProduct, ushort, S_IRUGO);
-MODULE_PARM_DESC(idProduct, "USB Product ID");
-
-static ushort bcdDevice;
-module_param(bcdDevice, ushort, S_IRUGO);
-MODULE_PARM_DESC(bcdDevice, "USB Device version (BCD)");
-
-static char *iManufacturer;
-module_param(iManufacturer, charp, S_IRUGO);
-MODULE_PARM_DESC(iManufacturer, "USB Manufacturer string");
-
-static char *iProduct;
-module_param(iProduct, charp, S_IRUGO);
-MODULE_PARM_DESC(iProduct, "USB Product string");
-
-static char *iSerialNumber;
-module_param(iSerialNumber, charp, S_IRUGO);
-MODULE_PARM_DESC(iSerialNumber, "SerialNumber");
-
-/*
- * this version autoconfigures as much as possible,
- * which is reasonable for most "bulk-only" drivers.
- */
-static const char *EP_IN_NAME;
-static const char *EP_OUT_NAME;
-
-
-/* big enough to hold our biggest descriptor */
-#define USB_BUFSIZ 256
-
-
-/* This is a gadget, and the IN/OUT naming is from the host's perspective.
-   USB -> OUT endpoint -> rawmidi
-   USB <- IN endpoint  <- rawmidi */
-struct gmidi_in_port {
-	struct gmidi_device* dev;
-	int active;
-	uint8_t cable;		/* cable number << 4 */
-	uint8_t state;
-#define STATE_UNKNOWN	0
-#define STATE_1PARAM	1
-#define STATE_2PARAM_1	2
-#define STATE_2PARAM_2	3
-#define STATE_SYSEX_0	4
-#define STATE_SYSEX_1	5
-#define STATE_SYSEX_2	6
-	uint8_t data[2];
-};
-
-struct gmidi_device {
-	spinlock_t		lock;
-	struct usb_gadget	*gadget;
-	struct usb_request	*req;		/* for control responses */
-	u8			config;
-	struct usb_ep		*in_ep, *out_ep;
-	struct snd_card		*card;
-	struct snd_rawmidi	*rmidi;
-	struct snd_rawmidi_substream *in_substream;
-	struct snd_rawmidi_substream *out_substream;
-
-	/* For the moment we only support one port in
-	   each direction, but in_port is kept as a
-	   separate struct so we can have more later. */
-	struct gmidi_in_port	in_port;
-	unsigned long		out_triggered;
-	struct tasklet_struct	tasklet;
-};
-
-static void gmidi_transmit(struct gmidi_device* dev, struct usb_request* req);
-
-
-#define DBG(d, fmt, args...) \
-	dev_dbg(&(d)->gadget->dev , fmt , ## args)
-#define VDBG(d, fmt, args...) \
-	dev_vdbg(&(d)->gadget->dev , fmt , ## args)
-#define ERROR(d, fmt, args...) \
-	dev_err(&(d)->gadget->dev , fmt , ## args)
-#define INFO(d, fmt, args...) \
-	dev_info(&(d)->gadget->dev , fmt , ## args)
-
-
-static unsigned buflen = 256;
-static unsigned qlen = 32;
-
+static unsigned int buflen = 256;
 module_param(buflen, uint, S_IRUGO);
-module_param(qlen, uint, S_IRUGO);
+MODULE_PARM_DESC(buflen, "MIDI buffer length");
 
+static unsigned int qlen = 32;
+module_param(qlen, uint, S_IRUGO);
+MODULE_PARM_DESC(qlen, "USB read request queue length");
 
 /* Thanks to Grey Innovation for donating this product ID.
  *
@@ -173,277 +74,42 @@ module_param(qlen, uint, S_IRUGO);
 #define DRIVER_VENDOR_NUM	0x17b3		/* Grey Innovation */
 #define DRIVER_PRODUCT_NUM	0x0004		/* Linux-USB "MIDI Gadget" */
 
+/* string IDs are assigned dynamically */
 
-/*
- * DESCRIPTORS ... most are static, but strings and (full)
- * configuration descriptors are built on demand.
- */
+#define STRING_MANUFACTURER_IDX		0
+#define STRING_PRODUCT_IDX		1
+#define STRING_DESCRIPTION_IDX		2
 
-#define STRING_MANUFACTURER	25
-#define STRING_PRODUCT		42
-#define STRING_SERIAL		101
-#define STRING_MIDI_GADGET	250
-
-/* We only have the one configuration, it's number 1. */
-#define	GMIDI_CONFIG		1
-
-/* We have two interfaces- AudioControl and MIDIStreaming */
-#define GMIDI_AC_INTERFACE	0
-#define GMIDI_MS_INTERFACE	1
-#define GMIDI_NUM_INTERFACES	2
-
-DECLARE_UAC_AC_HEADER_DESCRIPTOR(1);
-DECLARE_USB_MIDI_OUT_JACK_DESCRIPTOR(1);
-DECLARE_USB_MS_ENDPOINT_DESCRIPTOR(1);
-
-/* B.1  Device Descriptor */
 static struct usb_device_descriptor device_desc = {
 	.bLength =		USB_DT_DEVICE_SIZE,
 	.bDescriptorType =	USB_DT_DEVICE,
-	.bcdUSB =		cpu_to_le16(0x0200),
+	.bcdUSB =		__constant_cpu_to_le16(0x0200),
 	.bDeviceClass =		USB_CLASS_PER_INTERFACE,
-	.idVendor =		cpu_to_le16(DRIVER_VENDOR_NUM),
-	.idProduct =		cpu_to_le16(DRIVER_PRODUCT_NUM),
-	.iManufacturer =	STRING_MANUFACTURER,
-	.iProduct =		STRING_PRODUCT,
+	.idVendor =		__constant_cpu_to_le16(DRIVER_VENDOR_NUM),
+	.idProduct =		__constant_cpu_to_le16(DRIVER_PRODUCT_NUM),
+	/* .iManufacturer =	DYNAMIC */
+	/* .iProduct =		DYNAMIC */
 	.bNumConfigurations =	1,
 };
 
-/* B.2  Configuration Descriptor */
-static struct usb_config_descriptor config_desc = {
-	.bLength =		USB_DT_CONFIG_SIZE,
-	.bDescriptorType =	USB_DT_CONFIG,
-	/* compute wTotalLength on the fly */
-	.bNumInterfaces =	GMIDI_NUM_INTERFACES,
-	.bConfigurationValue =	GMIDI_CONFIG,
-	.iConfiguration =	STRING_MIDI_GADGET,
-	/*
-	 * FIXME: When embedding this driver in a device,
-	 * these need to be set to reflect the actual
-	 * power properties of the device. Is it selfpowered?
-	 */
-	.bmAttributes =		USB_CONFIG_ATT_ONE,
-	.bMaxPower =		CONFIG_USB_GADGET_VBUS_DRAW / 2,
+static struct usb_string strings_dev[] = {
+	[STRING_MANUFACTURER_IDX].s	= "Grey Innovation",
+	[STRING_PRODUCT_IDX].s		= "MIDI Gadget",
+	[STRING_DESCRIPTION_IDX].s	= "MIDI",
+	{  } /* end of list */
 };
 
-/* B.3.1  Standard AC Interface Descriptor */
-static const struct usb_interface_descriptor ac_interface_desc = {
-	.bLength =		USB_DT_INTERFACE_SIZE,
-	.bDescriptorType =	USB_DT_INTERFACE,
-	.bInterfaceNumber =	GMIDI_AC_INTERFACE,
-	.bNumEndpoints =	0,
-	.bInterfaceClass =	USB_CLASS_AUDIO,
-	.bInterfaceSubClass =	USB_SUBCLASS_AUDIOCONTROL,
-	.iInterface =		STRING_MIDI_GADGET,
+static struct usb_gadget_strings stringtab_dev = {
+	.language	= 0x0409,	/* en-us */
+	.strings	= strings_dev,
 };
 
-/* B.3.2  Class-Specific AC Interface Descriptor */
-static const struct uac1_ac_header_descriptor_1 ac_header_desc = {
-	.bLength =		UAC_DT_AC_HEADER_SIZE(1),
-	.bDescriptorType =	USB_DT_CS_INTERFACE,
-	.bDescriptorSubtype =	USB_MS_HEADER,
-	.bcdADC =		cpu_to_le16(0x0100),
-	.wTotalLength =		cpu_to_le16(UAC_DT_AC_HEADER_SIZE(1)),
-	.bInCollection =	1,
-	.baInterfaceNr = {
-		[0] =		GMIDI_MS_INTERFACE,
-	}
-};
-
-/* B.4.1  Standard MS Interface Descriptor */
-static const struct usb_interface_descriptor ms_interface_desc = {
-	.bLength =		USB_DT_INTERFACE_SIZE,
-	.bDescriptorType =	USB_DT_INTERFACE,
-	.bInterfaceNumber =	GMIDI_MS_INTERFACE,
-	.bNumEndpoints =	2,
-	.bInterfaceClass =	USB_CLASS_AUDIO,
-	.bInterfaceSubClass =	USB_SUBCLASS_MIDISTREAMING,
-	.iInterface =		STRING_MIDI_GADGET,
-};
-
-/* B.4.2  Class-Specific MS Interface Descriptor */
-static const struct usb_ms_header_descriptor ms_header_desc = {
-	.bLength =		USB_DT_MS_HEADER_SIZE,
-	.bDescriptorType =	USB_DT_CS_INTERFACE,
-	.bDescriptorSubtype =	USB_MS_HEADER,
-	.bcdMSC =		cpu_to_le16(0x0100),
-	.wTotalLength =		cpu_to_le16(USB_DT_MS_HEADER_SIZE
-				+ 2*USB_DT_MIDI_IN_SIZE
-				+ 2*USB_DT_MIDI_OUT_SIZE(1)),
-};
-
-#define JACK_IN_EMB	1
-#define JACK_IN_EXT	2
-#define JACK_OUT_EMB	3
-#define JACK_OUT_EXT	4
-
-/* B.4.3  MIDI IN Jack Descriptors */
-static const struct usb_midi_in_jack_descriptor jack_in_emb_desc = {
-	.bLength =		USB_DT_MIDI_IN_SIZE,
-	.bDescriptorType =	USB_DT_CS_INTERFACE,
-	.bDescriptorSubtype =	USB_MS_MIDI_IN_JACK,
-	.bJackType =		USB_MS_EMBEDDED,
-	.bJackID =		JACK_IN_EMB,
-};
-
-static const struct usb_midi_in_jack_descriptor jack_in_ext_desc = {
-	.bLength =		USB_DT_MIDI_IN_SIZE,
-	.bDescriptorType =	USB_DT_CS_INTERFACE,
-	.bDescriptorSubtype =	USB_MS_MIDI_IN_JACK,
-	.bJackType =		USB_MS_EXTERNAL,
-	.bJackID =		JACK_IN_EXT,
-};
-
-/* B.4.4  MIDI OUT Jack Descriptors */
-static const struct usb_midi_out_jack_descriptor_1 jack_out_emb_desc = {
-	.bLength =		USB_DT_MIDI_OUT_SIZE(1),
-	.bDescriptorType =	USB_DT_CS_INTERFACE,
-	.bDescriptorSubtype =	USB_MS_MIDI_OUT_JACK,
-	.bJackType =		USB_MS_EMBEDDED,
-	.bJackID =		JACK_OUT_EMB,
-	.bNrInputPins =		1,
-	.pins = {
-		[0] = {
-			.baSourceID =	JACK_IN_EXT,
-			.baSourcePin =	1,
-		}
-	}
-};
-
-static const struct usb_midi_out_jack_descriptor_1 jack_out_ext_desc = {
-	.bLength =		USB_DT_MIDI_OUT_SIZE(1),
-	.bDescriptorType =	USB_DT_CS_INTERFACE,
-	.bDescriptorSubtype =	USB_MS_MIDI_OUT_JACK,
-	.bJackType =		USB_MS_EXTERNAL,
-	.bJackID =		JACK_OUT_EXT,
-	.bNrInputPins =		1,
-	.pins = {
-		[0] = {
-			.baSourceID =	JACK_IN_EMB,
-			.baSourcePin =	1,
-		}
-	}
-};
-
-/* B.5.1  Standard Bulk OUT Endpoint Descriptor */
-static struct usb_endpoint_descriptor bulk_out_desc = {
-	.bLength =		USB_DT_ENDPOINT_AUDIO_SIZE,
-	.bDescriptorType =	USB_DT_ENDPOINT,
-	.bEndpointAddress =	USB_DIR_OUT,
-	.bmAttributes =		USB_ENDPOINT_XFER_BULK,
-};
-
-/* B.5.2  Class-specific MS Bulk OUT Endpoint Descriptor */
-static const struct usb_ms_endpoint_descriptor_1 ms_out_desc = {
-	.bLength =		USB_DT_MS_ENDPOINT_SIZE(1),
-	.bDescriptorType =	USB_DT_CS_ENDPOINT,
-	.bDescriptorSubtype =	USB_MS_GENERAL,
-	.bNumEmbMIDIJack =	1,
-	.baAssocJackID = {
-		[0] =		JACK_IN_EMB,
-	}
-};
-
-/* B.6.1  Standard Bulk IN Endpoint Descriptor */
-static struct usb_endpoint_descriptor bulk_in_desc = {
-	.bLength =		USB_DT_ENDPOINT_AUDIO_SIZE,
-	.bDescriptorType =	USB_DT_ENDPOINT,
-	.bEndpointAddress =	USB_DIR_IN,
-	.bmAttributes =		USB_ENDPOINT_XFER_BULK,
-};
-
-/* B.6.2  Class-specific MS Bulk IN Endpoint Descriptor */
-static const struct usb_ms_endpoint_descriptor_1 ms_in_desc = {
-	.bLength =		USB_DT_MS_ENDPOINT_SIZE(1),
-	.bDescriptorType =	USB_DT_CS_ENDPOINT,
-	.bDescriptorSubtype =	USB_MS_GENERAL,
-	.bNumEmbMIDIJack =	1,
-	.baAssocJackID = {
-		[0] =		JACK_OUT_EMB,
-	}
-};
-
-static const struct usb_descriptor_header *gmidi_function [] = {
-	(struct usb_descriptor_header *)&ac_interface_desc,
-	(struct usb_descriptor_header *)&ac_header_desc,
-	(struct usb_descriptor_header *)&ms_interface_desc,
-
-	(struct usb_descriptor_header *)&ms_header_desc,
-	(struct usb_descriptor_header *)&jack_in_emb_desc,
-	(struct usb_descriptor_header *)&jack_in_ext_desc,
-	(struct usb_descriptor_header *)&jack_out_emb_desc,
-	(struct usb_descriptor_header *)&jack_out_ext_desc,
-	/* If you add more jacks, update ms_header_desc.wTotalLength */
-
-	(struct usb_descriptor_header *)&bulk_out_desc,
-	(struct usb_descriptor_header *)&ms_out_desc,
-	(struct usb_descriptor_header *)&bulk_in_desc,
-	(struct usb_descriptor_header *)&ms_in_desc,
+static struct usb_gadget_strings *dev_strings[] = {
+	&stringtab_dev,
 	NULL,
 };
 
-static char manufacturer[50];
-static char product_desc[40] = "MIDI Gadget";
-static char serial_number[20];
-
-/* static strings, in UTF-8 */
-static struct usb_string strings [] = {
-	{ STRING_MANUFACTURER, manufacturer, },
-	{ STRING_PRODUCT, product_desc, },
-	{ STRING_SERIAL, serial_number, },
-	{ STRING_MIDI_GADGET, longname, },
-	{  }			/* end of list */
-};
-
-static struct usb_gadget_strings stringtab = {
-	.language	= 0x0409,	/* en-us */
-	.strings	= strings,
-};
-
-static int config_buf(struct usb_gadget *gadget,
-		u8 *buf, u8 type, unsigned index)
-{
-	int len;
-
-	/* only one configuration */
-	if (index != 0) {
-		return -EINVAL;
-	}
-	len = usb_gadget_config_buf(&config_desc,
-			buf, USB_BUFSIZ, gmidi_function);
-	if (len < 0) {
-		return len;
-	}
-	((struct usb_config_descriptor *)buf)->bDescriptorType = type;
-	return len;
-}
-
-static struct usb_request *alloc_ep_req(struct usb_ep *ep, unsigned length)
-{
-	struct usb_request	*req;
-
-	req = usb_ep_alloc_request(ep, GFP_ATOMIC);
-	if (req) {
-		req->length = length;
-		req->buf = kmalloc(length, GFP_ATOMIC);
-		if (!req->buf) {
-			usb_ep_free_request(ep, req);
-			req = NULL;
-		}
-	}
-	return req;
-}
-
-static void free_ep_req(struct usb_ep *ep, struct usb_request *req)
-{
-	kfree(req->buf);
-	usb_ep_free_request(ep, req);
-}
-
-static const uint8_t gmidi_cin_length[] = {
-	0, 0, 2, 3, 3, 1, 2, 3, 3, 3, 3, 3, 2, 2, 3, 1
-};
-
+<<<<<<< HEAD
 /*
  * Receives a chunk of MIDI data.
  */
@@ -1051,270 +717,82 @@ static int gmidi_out_open(struct snd_rawmidi_substream *substream)
 	return 0;
 }
 
-static int gmidi_out_close(struct snd_rawmidi_substream *substream)
-{
-	struct gmidi_device *dev = substream->rmidi->private_data;
-
-	VDBG(dev, "gmidi_out_close\n");
-	return 0;
-}
-
-static void gmidi_out_trigger(struct snd_rawmidi_substream *substream, int up)
-{
-	struct gmidi_device *dev = substream->rmidi->private_data;
-
-	VDBG(dev, "gmidi_out_trigger %d\n", up);
-	if (up) {
-		set_bit(substream->number, &dev->out_triggered);
-	} else {
-		clear_bit(substream->number, &dev->out_triggered);
-	}
-}
-
-static struct snd_rawmidi_ops gmidi_in_ops = {
-	.open = gmidi_in_open,
-	.close = gmidi_in_close,
-	.trigger = gmidi_in_trigger,
+static struct usb_configuration midi_config = {
+	.label		= "MIDI Gadget",
+	.bConfigurationValue = 1,
+	/* .iConfiguration = DYNAMIC */
+	.bmAttributes	= USB_CONFIG_ATT_ONE,
+	.bMaxPower	= CONFIG_USB_GADGET_VBUS_DRAW / 2,
 };
 
-static struct snd_rawmidi_ops gmidi_out_ops = {
-	.open = gmidi_out_open,
-	.close = gmidi_out_close,
-	.trigger = gmidi_out_trigger
-};
-
-/* register as a sound "card" */
-static int gmidi_register_card(struct gmidi_device *dev)
+static int __init midi_bind_config(struct usb_configuration *c)
 {
-	struct snd_card *card;
-	struct snd_rawmidi *rmidi;
-	int err;
-	int out_ports = 1;
-	int in_ports = 1;
-	static struct snd_device_ops ops = {
-		.dev_free = gmidi_snd_free,
-	};
-
-	err = snd_card_create(index, id, THIS_MODULE, 0, &card);
-	if (err < 0) {
-		ERROR(dev, "snd_card_create failed\n");
-		goto fail;
-	}
-	dev->card = card;
-
-	err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, dev, &ops);
-	if (err < 0) {
-		ERROR(dev, "snd_device_new failed: error %d\n", err);
-		goto fail;
-	}
-
-	strcpy(card->driver, longname);
-	strcpy(card->longname, longname);
-	strcpy(card->shortname, shortname);
-
-	/* Set up rawmidi */
-	dev->in_port.dev = dev;
-	dev->in_port.active = 0;
-	snd_component_add(card, "MIDI");
-	err = snd_rawmidi_new(card, "USB MIDI Gadget", 0,
-			      out_ports, in_ports, &rmidi);
-	if (err < 0) {
-		ERROR(dev, "snd_rawmidi_new failed: error %d\n", err);
-		goto fail;
-	}
-	dev->rmidi = rmidi;
-	strcpy(rmidi->name, card->shortname);
-	rmidi->info_flags = SNDRV_RAWMIDI_INFO_OUTPUT |
-			    SNDRV_RAWMIDI_INFO_INPUT |
-			    SNDRV_RAWMIDI_INFO_DUPLEX;
-	rmidi->private_data = dev;
-
-	/* Yes, rawmidi OUTPUT = USB IN, and rawmidi INPUT = USB OUT.
-	   It's an upside-down world being a gadget. */
-	snd_rawmidi_set_ops(rmidi, SNDRV_RAWMIDI_STREAM_OUTPUT, &gmidi_in_ops);
-	snd_rawmidi_set_ops(rmidi, SNDRV_RAWMIDI_STREAM_INPUT, &gmidi_out_ops);
-
-	snd_card_set_dev(card, &dev->gadget->dev);
-
-	/* register it - we're ready to go */
-	err = snd_card_register(card);
-	if (err < 0) {
-		ERROR(dev, "snd_card_register failed\n");
-		goto fail;
-	}
-
-	VDBG(dev, "gmidi_register_card finished ok\n");
-	return 0;
-
-fail:
-	if (dev->card) {
-		snd_card_free(dev->card);
-		dev->card = NULL;
-	}
-	return err;
+	return f_midi_bind_config(c, index, id, buflen, qlen);
 }
 
-/*
- * Creates an output endpoint, and initializes output ports.
- */
-static int __init gmidi_bind(struct usb_gadget *gadget)
+static int __init midi_bind(struct usb_composite_dev *cdev)
 {
-	struct gmidi_device *dev;
-	struct usb_ep *in_ep, *out_ep;
-	int gcnum, err = 0;
+	struct usb_gadget *gadget = cdev->gadget;
+	int gcnum, status;
 
-	/* support optional vendor/distro customization */
-	if (idVendor) {
-		if (!idProduct) {
-			pr_err("idVendor needs idProduct!\n");
-			return -ENODEV;
-		}
-		device_desc.idVendor = cpu_to_le16(idVendor);
-		device_desc.idProduct = cpu_to_le16(idProduct);
-		if (bcdDevice) {
-			device_desc.bcdDevice = cpu_to_le16(bcdDevice);
-		}
-	}
-	if (iManufacturer) {
-		strlcpy(manufacturer, iManufacturer, sizeof(manufacturer));
-	} else {
-		snprintf(manufacturer, sizeof(manufacturer), "%s %s with %s",
-			init_utsname()->sysname, init_utsname()->release,
-			gadget->name);
-	}
-	if (iProduct) {
-		strlcpy(product_desc, iProduct, sizeof(product_desc));
-	}
-	if (iSerialNumber) {
-		device_desc.iSerialNumber = STRING_SERIAL,
-		strlcpy(serial_number, iSerialNumber, sizeof(serial_number));
-	}
+	status = usb_string_id(cdev);
+	if (status < 0)
+		return status;
+	strings_dev[STRING_MANUFACTURER_IDX].id = status;
+	device_desc.iManufacturer = status;
 
-	/* Bulk-only drivers like this one SHOULD be able to
-	 * autoconfigure on any sane usb controller driver,
-	 * but there may also be important quirks to address.
-	 */
-	usb_ep_autoconfig_reset(gadget);
-	in_ep = usb_ep_autoconfig(gadget, &bulk_in_desc);
-	if (!in_ep) {
-autoconf_fail:
-		pr_err("%s: can't autoconfigure on %s\n",
-			shortname, gadget->name);
-		return -ENODEV;
-	}
-	EP_IN_NAME = in_ep->name;
-	in_ep->driver_data = in_ep;	/* claim */
+	status = usb_string_id(cdev);
+	if (status < 0)
+		return status;
+	strings_dev[STRING_PRODUCT_IDX].id = status;
+	device_desc.iProduct = status;
 
-	out_ep = usb_ep_autoconfig(gadget, &bulk_out_desc);
-	if (!out_ep) {
-		goto autoconf_fail;
-	}
-	EP_OUT_NAME = out_ep->name;
-	out_ep->driver_data = out_ep;	/* claim */
+	/* config description */
+	status = usb_string_id(cdev);
+	if (status < 0)
+		return status;
+	strings_dev[STRING_DESCRIPTION_IDX].id = status;
+
+	midi_config.iConfiguration = status;
 
 	gcnum = usb_gadget_controller_number(gadget);
-	if (gcnum >= 0) {
-		device_desc.bcdDevice = cpu_to_le16(0x0200 + gcnum);
-	} else {
+	if (gcnum < 0) {
 		/* gmidi is so simple (no altsettings) that
 		 * it SHOULD NOT have problems with bulk-capable hardware.
 		 * so warn about unrecognized controllers, don't panic.
 		 */
 		pr_warning("%s: controller '%s' not recognized\n",
-			shortname, gadget->name);
+			   __func__, gadget->name);
 		device_desc.bcdDevice = cpu_to_le16(0x9999);
+	} else {
+		device_desc.bcdDevice = cpu_to_le16(0x0200 + gcnum);
 	}
 
+	status = usb_add_config(cdev, &midi_config, midi_bind_config);
+	if (status < 0)
+		return status;
 
-	/* ok, we made sense of the hardware ... */
-	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
-	if (!dev) {
-		return -ENOMEM;
-	}
-	spin_lock_init(&dev->lock);
-	dev->gadget = gadget;
-	dev->in_ep = in_ep;
-	dev->out_ep = out_ep;
-	set_gadget_data(gadget, dev);
-	tasklet_init(&dev->tasklet, gmidi_in_tasklet, (unsigned long)dev);
-
-	/* preallocate control response and buffer */
-	dev->req = alloc_ep_req(gadget->ep0, USB_BUFSIZ);
-	if (!dev->req) {
-		err = -ENOMEM;
-		goto fail;
-	}
-
-	dev->req->complete = gmidi_setup_complete;
-
-	device_desc.bMaxPacketSize0 = gadget->ep0->maxpacket;
-
-	gadget->ep0->driver_data = dev;
-
-	INFO(dev, "%s, version: " DRIVER_VERSION "\n", longname);
-	INFO(dev, "using %s, OUT %s IN %s\n", gadget->name,
-		EP_OUT_NAME, EP_IN_NAME);
-
-	/* register as an ALSA sound card */
-	err = gmidi_register_card(dev);
-	if (err < 0) {
-		goto fail;
-	}
-
-	VDBG(dev, "gmidi_bind finished ok\n");
+	pr_info("%s\n", longname);
 	return 0;
-
-fail:
-	gmidi_unbind(gadget);
-	return err;
 }
 
-
-static void gmidi_suspend(struct usb_gadget *gadget)
-{
-	struct gmidi_device *dev = get_gadget_data(gadget);
-
-	if (gadget->speed == USB_SPEED_UNKNOWN) {
-		return;
-	}
-
-	DBG(dev, "suspend\n");
-}
-
-static void gmidi_resume(struct usb_gadget *gadget)
-{
-	struct gmidi_device *dev = get_gadget_data(gadget);
-
-	DBG(dev, "resume\n");
-}
-
-
-static struct usb_gadget_driver gmidi_driver = {
-	.speed		= USB_SPEED_FULL,
-	.function	= (char *)longname,
-	.unbind		= gmidi_unbind,
-
-	.setup		= gmidi_setup,
-	.disconnect	= gmidi_disconnect,
-
-	.suspend	= gmidi_suspend,
-	.resume		= gmidi_resume,
-
-	.driver		= {
-		.name		= (char *)shortname,
-		.owner		= THIS_MODULE,
-	},
+static struct usb_composite_driver midi_driver = {
+	.name		= (char *) longname,
+	.dev		= &device_desc,
+	.strings	= dev_strings,
+	.max_speed	= USB_SPEED_HIGH,
+	.unbind		= __exit_p(midi_unbind),
 };
 
-static int __init gmidi_init(void)
+static int __init midi_init(void)
 {
-	return usb_gadget_probe_driver(&gmidi_driver, gmidi_bind);
+	return usb_composite_probe(&midi_driver, midi_bind);
 }
-module_init(gmidi_init);
+module_init(midi_init);
 
-static void __exit gmidi_cleanup(void)
+static void __exit midi_cleanup(void)
 {
-	usb_gadget_unregister_driver(&gmidi_driver);
+	usb_composite_unregister(&midi_driver);
 }
-module_exit(gmidi_cleanup);
+module_exit(midi_cleanup);
 
