@@ -26,6 +26,10 @@ extern bool dyn_fsync_active;
 #define VALID_FLAGS (SYNC_FILE_RANGE_WAIT_BEFORE|SYNC_FILE_RANGE_WRITE| \
 			SYNC_FILE_RANGE_WAIT_AFTER)
 
+#ifdef CONFIG_FSYNC_CONTROL
+extern bool fsynccontrol_fsync_enabled(void);
+#endif
+
 /*
  * Do the filesystem syncing work. For simple filesystems
  * writeback_inodes_sb(sb) just dirties buffers with inodes so we have to
