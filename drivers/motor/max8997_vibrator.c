@@ -27,6 +27,10 @@ struct vibrator_drvdata {
 	int timeout;
 };
 
+static const int vibrator_duty_levels[] = { 26000, 28000, 30000, 32000, 34000, 36000, 38000, 40000, 42000, 44000 };
+static int vibrator_level = -1;
+static int vibrator_duty = -1;
+
 #ifdef CONFIG_VIBETONZ
 struct vibrator_drvdata *g_data;
 #endif
@@ -112,6 +116,13 @@ static void vibrator_work(struct work_struct *_work)
 		i2c_max8997_hapticmotor(data, true);
 		pwm_config(data->pwm,
 			data->pdata->duty, data->pdata->period);
+} else {
+		if (vibrator_duty < 0) {
+			pwm_config(data->pwm, pwm_duty, data->pdata->period);
+			pr_debug("[VIB] %s: pwm_config duty=%d\n", __func__, pwm_duty);
+		} else
+			pwm_config(data->pwm, vibrator_duty, 44138);
+}
 		pwm_enable(data->pwm);
 
 		data->running = true;
@@ -206,6 +217,57 @@ void vibtonz_pwm(int nForce)
 }
 EXPORT_SYMBOL(vibtonz_pwm);
 #endif
+
+static ssize_t show_vibrator_level_max(struct device *dev,
+				       struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", (ARRAY_SIZE(vibrator_duty_levels) - 1));
+}
+
+static ssize_t show_vibrator_level(struct device *dev,
+				   struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "vibrator level: %d, duty: %d\n", vibrator_level, vibrator_duty);
+}
+
+static ssize_t store_vibrator_level(struct device *dev,
+				    struct device_attribute *attr,
+				    const char *buf, size_t len)
+{
+	if (sscanf(buf, "%d\n", &vibrator_level) == 1) {
+		if (vibrator_level >= ARRAY_SIZE(vibrator_duty_levels))
+			vibrator_level = ARRAY_SIZE(vibrator_duty_levels) - 1;
+		vibrator_duty = vibrator_level < 0 ? -1 : vibrator_duty_levels[vibrator_level];
+	}
+	return len;
+}
+
+static DEVICE_ATTR(vibrator_level_max, S_IRUGO | S_IWUGO, show_vibrator_level_max, NULL);
+static DEVICE_ATTR(vibrator_level, S_IRUGO | S_IWUGO, show_vibrator_level, store_vibrator_level);
+
+static int create_vibrator_sysfs(void)
+{
+	int ret;
+	struct kobject *vibrator_kobj;
+	vibrator_kobj = kobject_create_and_add("vibrator", NULL);
+	if (unlikely(!vibrator_kobj))
+		return -ENOMEM;
+
+	ret = sysfs_create_file(vibrator_kobj,
+			&dev_attr_pwm_val.attr);
+	if (unlikely(ret < 0))
+		pr_err("[VIB] sysfs_create_file failed: %d\n", ret);
+
+	ret = sysfs_create_file(vibrator_kobj, &dev_attr_vibrator_level_max.attr);
+	if (unlikely(ret < 0))
+		pr_err("[VIB] sysfs_create_file failed: %d\n", ret);
+
+	ret = sysfs_create_file(vibrator_kobj, &dev_attr_vibrator_level.attr);
+	if (unlikely(ret < 0))
+		pr_err("[VIB] sysfs_create_file failed: %d\n", ret);
+
+	return 0;
+}
 
 static int __devinit vibrator_probe(struct platform_device *pdev)
 {
