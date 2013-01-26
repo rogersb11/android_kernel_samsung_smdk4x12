@@ -1872,7 +1872,7 @@ static void s3c_i2c5_cfg_gpio_gd2(struct platform_device *dev)
 #endif
 
 #ifdef CONFIG_S3C_DEV_I2C5
-#if !defined(CONFIG_MACH_T0_EUR_OPEN) && !defined(CONFIG_MACH_T0_CHN_OPEN) \
+#if !defined(CONFIG_MACH__OPEN) && !defined(CONFIG_MACH_T0_CHN_OPEN) \
 	&& !defined(CONFIG_MACH_GD2) && !defined(CONFIG_MACH_IPCAM) && !defined(CONFIG_MACH_GC2PD)
 static struct i2c_board_info i2c_devs5[] __initdata = {
 #ifdef CONFIG_REGULATOR_MAX8997
@@ -2461,7 +2461,7 @@ static struct samsung_battery_platform_data samsung_battery_pdata = {
 	.in_curr_usb = 475,
 	.chg_curr_cdp = 1000,
 	.in_curr_cdp = 1000,
-#if defined(CONFIG_MACH_T0_USA_VZW)
+#if defined(CONFIG_MACH_T0_EUR_LTE)
 	.chg_curr_wpc = 650,
 #else
 	.chg_curr_wpc = 475,
