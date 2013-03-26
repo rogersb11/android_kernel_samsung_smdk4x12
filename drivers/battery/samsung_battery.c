@@ -846,7 +846,7 @@ static bool battery_fullcharged_cond(struct battery_info *info)
 	pr_debug("%s\n", __func__);
 
 	/* max voltage - RECHG_DROP_VALUE: recharge voltage */
-	f_cond_vcell = info->pdata->voltage_max - RECHG_DROP_VALUE;
+	f_cond_vcell = info->pdata->recharge_voltage;
 	/* max soc - 5% */
 	f_cond_soc = 95;
 
@@ -1766,13 +1766,21 @@ charge_ok:
 		if (!info->pdata->suspend_chging)
 			wake_lock(&info->charge_wake_lock);
 		battery_charge_control(info, info->pdata->chg_curr_usb,
+#ifdef CONFIG_BATTERY_MAX77693_CHARGER_CONTROL
+						info->pdata->in_curr_usb);
+#else
 						info->pdata->chg_curr_usb);
+#endif
 		break;
 	case POWER_SUPPLY_TYPE_USB_CDP:
 		if (!info->pdata->suspend_chging)
 			wake_lock(&info->charge_wake_lock);
 		battery_charge_control(info, info->pdata->chg_curr_cdp,
+#ifdef CONFIG_BATTERY_MAX77693_CHARGER_CONTROL
+						info->pdata->in_curr_cdp);
+#else
 						info->pdata->chg_curr_cdp);
+#endif
 		break;
 	case POWER_SUPPLY_TYPE_DOCK:
 		if (!info->pdata->suspend_chging)
@@ -1911,8 +1919,9 @@ monitor_finish:
 		info->prev_battery_health != info->battery_health ||
 		info->prev_charge_virt_state != info->charge_virt_state ||
 		info->prev_battery_soc != info->battery_soc) {
-		pr_info("%s: update wakelock(%d)\n", __func__, 3 * HZ);
-		wake_lock_timeout(&info->update_wake_lock, 3 * HZ);
+		/* TBD : timeout value */
+		pr_info("%s: update wakelock(%d)\n", __func__, HZ);
+		wake_lock_timeout(&info->update_wake_lock, HZ);
 	}
 	info->prev_cable_type = info->cable_type;
 	info->prev_battery_health = info->battery_health;
@@ -1927,11 +1936,9 @@ skip_updating_status:
 	if ((info->lpm_state == true) &&
 		(info->cable_type == POWER_SUPPLY_TYPE_BATTERY)) {
 		pr_info("%s: lpm with battery, maybe power off\n", __func__);
-		wake_lock_timeout(&info->monitor_wake_lock,
-					msecs_to_jiffies(10000));
+		wake_lock_timeout(&info->monitor_wake_lock, 3 * HZ);
 	} else {
-		wake_lock_timeout(&info->monitor_wake_lock,
-					msecs_to_jiffies(1000));
+		wake_lock_timeout(&info->monitor_wake_lock, HZ / 4);
 	}
 
 	mutex_unlock(&info->mon_lock);
@@ -2611,6 +2618,10 @@ gpio_bat_det_finish:
 		info->entry->read_proc = battery_info_proc;
 		info->entry->data = (struct battery_info *)info;
 	}
+#endif
+
+#ifdef CONFIG_BATTERY_MAX77693_CHARGER_CONTROL
+	charger_control_init(info);
 #endif
 
 	pr_info("%s: probe complete\n", __func__);
