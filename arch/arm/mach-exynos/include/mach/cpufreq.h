@@ -23,7 +23,7 @@ enum cpufreq_level_index {
 	L5, L6, L7, L8, L9,
 	L10, L11, L12, L13, L14,
 	L15, L16, L17, L18, L19,
-	L20,
+	L20, L21
 };
 
 enum busfreq_level_request {
@@ -72,9 +72,14 @@ enum cpufreq_lock_ID {
 	DVFS_LOCK_ID_QOS_DMA_LATENCY,
 	DVFS_LOCK_ID_END,
 };
-
+extern int cpufreq_pm_lock_idx;
+int exynos_cpufreq_get_curfreq(void);
+int exynos_cpufreq_get_maxfreq(void);
+int exynos_cpufreq_get_minfreq(void);
 int exynos_cpufreq_get_level(unsigned int freq,
 			unsigned int *level);
+int exynos_cpufreq_get_freq(unsigned int level,
+							 unsigned int *freq);
 int exynos_find_cpufreq_level_by_volt(unsigned int arm_volt,
 			unsigned int *level);
 int exynos_cpufreq_lock(unsigned int nId,
