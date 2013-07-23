@@ -912,8 +912,12 @@ void dhd_enable_packet_filter(int value, dhd_pub_t *dhd)
 #endif /* PKT_FILTER_SUPPORT */
 }
 
+bool wifi_pm = true;
+module_param(wifi_pm, bool, 0755);
+
 static int dhd_set_suspend(int value, dhd_pub_t *dhd)
 {
+
 #ifndef SUPPORT_PM2_ONLY
 	int power_mode = PM_MAX;
 #endif /* SUPPORT_PM2_ONLY */
@@ -1037,7 +1041,10 @@ static int dhd_set_suspend(int value, dhd_pub_t *dhd)
 #endif /* DYNAMIC_SWOOB_DURATION */
 
 #ifndef SUPPORT_PM2_ONLY
-				power_mode = PM_FAST;
+        		   if (wifi_pm)
+		          	power_mode = PM_FAST;
+		           else
+		         	power_mode = PM_OFF;
 				dhd_wl_ioctl_cmd(dhd, WLC_SET_PM, (char *)&power_mode,
 				                 sizeof(power_mode), TRUE, 0);
 #endif /* SUPPORT_PM2_ONLY */
@@ -4389,7 +4396,7 @@ dhd_preinit_ioctls(dhd_pub_t *dhd)
 #ifdef DHD_ENABLE_LPC
 	uint32 lpc = 1;
 #endif /* DHD_ENABLE_LPC */
-	uint power_mode = PM_FAST;
+	uint power_mode;
 	uint32 dongle_align = DHD_SDALIGN;
 	uint32 glom = CUSTOM_GLOM_SETTING;
 #if defined(CUSTOMER_HW2) && defined(USE_WL_CREDALL)
@@ -4505,6 +4512,10 @@ dhd_preinit_ioctls(dhd_pub_t *dhd)
 		dhd_os_set_ioctl_resp_timeout(IOCTL_RESP_TIMEOUT);
 		DHD_INFO(("%s : Set IOCTL response time.\n", __FUNCTION__));
 	}
+  	if (wifi_pm)
+	   power_mode = PM_FAST;
+	else
+	   power_mode = PM_OFF;
 #ifdef GET_CUSTOM_MAC_ENABLE
 	ret = wifi_platform_get_mac_addr(dhd->info->adapter, ea_addr.octet);
 	if (!ret) {
