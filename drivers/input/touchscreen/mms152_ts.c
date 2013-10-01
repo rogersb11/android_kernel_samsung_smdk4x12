@@ -113,6 +113,7 @@ static bool sttg_require_touchkey = false;
 
 #include <asm/unaligned.h>
 
+#include "../keyboard/cypress/cypress-touchkey.h"
 #ifdef CONFIG_INPUT_FBSUSPEND
 #ifdef CONFIG_DRM
 #include <drm/drm_backlight.h>
