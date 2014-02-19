@@ -27,6 +27,7 @@ obj-$(CONFIG_CPU_FREQ_GOV_LAGFREE)	+= cpufreq_lagfree.o
 obj-$(CONFIG_CPU_FREQ_GOV_LAZY)		+= cpufreq_lazy.o
 obj-$(CONFIG_CPU_FREQ_GOV_PEGASUSQPLUS)	+= cpufreq_pegasusqplus.o
 obj-$(CONFIG_CPU_FREQ_GOV_YANKASUSQ)	+= cpufreq_yankasusq.o
+obj-$(CONFIG_CPU_FREQ_GOV_INTELLIACTIVE)+= cpufreq_intelliactive.o
 
 # CPUfreq cross-arch helpers
 obj-$(CONFIG_CPU_FREQ_TABLE)		+= freq_table.o
