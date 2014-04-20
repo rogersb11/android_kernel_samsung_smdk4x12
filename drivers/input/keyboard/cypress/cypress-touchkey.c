@@ -804,6 +804,60 @@ static irqreturn_t touchkey_interrupt(int irq, void *dev_id)
 		mem_menu_sensitivity = ((0x00FF & data[10]) << 8) | data[11];
 		mem_back_sensitivity = ((0x00FF & data[12]) << 8) | data[13];
 #endif
+		// Yank555.lu : ROM is handling (newer CM)
+		if (touch_led_handling == TOUCHKEY_LED_ROM && !touch_led_disabled) {
+
+			// Yank555.lu : enable lights on h/w key pressed
+			touchkey_pressed = TOUCHKEY_HW_PRESSED;
+			if (touchkey_led_status       == TK_CMD_LED_OFF	       &&
+			    touch_led_on_screen_touch == TOUCHKEY_LED_DISABLED   ) {
+				pr_debug("[Touchkey] %s: enabling touchled\n", __func__);
+				i2c_touchkey_write(tkey_i2c->client, (u8 *) &ledCmd[0], 1);
+				touchkey_led_status = TK_CMD_LED_ON;
+			}
+
+		} else {
+
+		// Yank555.lu : Kernel is handling (older CM)
+		        // enable lights on keydown
+			if (touch_led_disabled == 0) {
+			    if (touchkey_led_status == TK_CMD_LED_OFF) {
+				pr_debug("[Touchkey] %s: keydown - LED ON\n", __func__);
+				i2c_touchkey_write(tkey_i2c->client, (u8 *) &ledCmd[0], 1);
+				touchkey_led_status = TK_CMD_LED_ON;
+			    }
+			    if (timer_pending(&touch_led_timer) == 1) {
+				mod_timer(&touch_led_timer, jiffies + (HZ * touch_led_timeout));
+			    }
+			}
+
+		}
+
+	} else {
+
+		// Yank555.lu : Kernel is handling (older CM)
+		if (touch_led_handling == TOUCHKEY_LED_KERNEL) {
+			// touch led timeout on keyup
+			if (touch_led_disabled == 0) {
+			    if (timer_pending(&touch_led_timer) == 0) {
+				pr_debug("[Touchkey] %s: keyup - add_timer\n", __func__);
+				touch_led_timer.expires = jiffies + (HZ * touch_led_timeout);
+				add_timer(&touch_led_timer);
+			    } else {
+				mod_timer(&touch_led_timer, jiffies + (HZ * touch_led_timeout));
+			    }
+			}
+		}
+		// Yank555.lu : ROM is handling (newer CM) - nothing to do
+	}
+	
+	if (sttg_kw_mode > 0
+		&& (sttg_ka_mode || sttg_kw_mode == 1 || sttg_kw_mode > 3)
+		&& flg_screen_on) {
+		// if knockwake is enabled, reset it if a touchkey was pressed.
+		
+		pr_info("[Touchkey/kw] resetting knockwake\n");
+		ignoreKnocks(sttg_kw_tsp_event_suspensions);
 	}
 #endif
         // enable lights on keydown
