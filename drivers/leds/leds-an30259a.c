@@ -660,7 +660,6 @@ static ssize_t store_an30259a_led_fade(struct device *dev,
 {
 	int retval;
 	int enabled = 0;
-	struct an30259a_data *data = dev_get_drvdata(dev);
 
 	retval = sscanf(buf, "%d", &enabled);
 
@@ -674,14 +673,7 @@ static ssize_t store_an30259a_led_fade(struct device *dev,
 static ssize_t show_an30259a_led_intensity(struct device *dev,
                     struct device_attribute *attr, char *buf)
 {
-	switch(led_intensity) {
-		case  0:	return sprintf(buf, "%d - CM stock LED intensity\n", led_intensity);
-		case 40:	return sprintf(buf, "%d - Samsung stock LED intensity\n", led_intensity);
-		default:	if (led_intensity < 40)
-					return sprintf(buf, "%d - LED intesity darker by %d steps\n", led_intensity, 40-led_intensity);
-				else
-					return sprintf(buf, "%d - LED intesity brighter by %d steps\n", led_intensity, led_intensity-40);
-	}
+	return sprintf(buf, "%d\n", led_intensity);
 }
 
 static ssize_t store_an30259a_led_intensity(struct device *dev,
@@ -694,8 +686,7 @@ static ssize_t store_an30259a_led_intensity(struct device *dev,
 
 	/* Only values between 0 and 255 are accepted */
 	if (new_intensity >= 0 && new_intensity <= 255)
-
-		led_intensity = (u8)new_intensity;
+		led_intensity = new_intensity;
 
 	return count;
 
@@ -704,14 +695,7 @@ static ssize_t store_an30259a_led_intensity(struct device *dev,
 static ssize_t show_an30259a_led_speed(struct device *dev,
                     struct device_attribute *attr, char *buf)
 {
-	switch(led_speed) {
-		case 1:		return sprintf(buf, "%d - LED blinking/fading speed as requested\n", led_speed); break;
-		case 2:
-		case 3:
-		case 4:
-		case 5:		return sprintf(buf, "%d - LED blinking/fading speed is %dx faster\n", led_speed, led_speed);
-		default:	return sprintf(buf, "%d - LED blinking/fading speed is in undefined status\n", led_speed);
-	}
+	return sprintf(buf, "%d\n", led_speed); 
 }
 
 static ssize_t store_an30259a_led_speed(struct device *dev,
@@ -732,10 +716,102 @@ static ssize_t store_an30259a_led_speed(struct device *dev,
 	}
 }
 
+static ssize_t show_an30259a_led_slope_up_1(struct device *dev,
+                    struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", led_slope_up_1);
+}
+
+static ssize_t show_an30259a_led_slope_up_2(struct device *dev,
+                    struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", led_slope_up_2);
+}
+
+static ssize_t show_an30259a_led_slope_down_1(struct device *dev,
+                    struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", led_slope_down_1);
+}
+
+static ssize_t show_an30259a_led_slope_down_2(struct device *dev,
+                    struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", led_slope_down_2);
+}
+
 static ssize_t show_an30259a_led_slope(struct device *dev,
                     struct device_attribute *attr, char *buf)
 {
 	return sprintf(buf, "Slope up : (%d,%d) - Slope down (%d,%d)\n", led_slope_up_1, led_slope_up_2, led_slope_down_1, led_slope_down_2);
+}
+
+static ssize_t store_an30259a_led_slope_up_1(struct device *dev,
+					struct device_attribute *devattr,
+					const char *buf, size_t count)
+{
+	int new_led_slope_up_1;
+	int retval;
+
+	retval = sscanf(buf, "%d", &new_led_slope_up_1);
+
+	if (retval) {
+		/* allow only values between 0 and 5 (steps of 4ms) */
+		led_slope_up_1   = min(max(new_led_slope_up_1  , 0), 5);
+	}
+
+	return count;
+}
+
+static ssize_t store_an30259a_led_slope_up_2(struct device *dev,
+					struct device_attribute *devattr,
+					const char *buf, size_t count)
+{
+	int new_led_slope_up_2;
+	int retval;
+
+	retval = sscanf(buf, "%d", &new_led_slope_up_2);
+
+	if (retval) {
+		/* allow only values between 0 and 5 (steps of 4ms) */
+		led_slope_up_2   = min(max(new_led_slope_up_2  , 0), 5);
+	}
+
+	return count;
+}
+
+static ssize_t store_an30259a_led_slope_down_1(struct device *dev,
+					struct device_attribute *devattr,
+					const char *buf, size_t count)
+{
+	int new_led_slope_down_1;
+	int retval;
+
+	retval = sscanf(buf, "%d", &new_led_slope_down_1);
+
+	if (retval) {
+		/* allow only values between 0 and 5 (steps of 4ms) */
+		led_slope_down_1   = min(max(new_led_slope_down_1  , 0), 5);
+	}
+
+	return count;
+}
+
+static ssize_t store_an30259a_led_slope_down_2(struct device *dev,
+					struct device_attribute *devattr,
+					const char *buf, size_t count)
+{
+	int new_led_slope_down_2;
+	int retval;
+
+	retval = sscanf(buf, "%d", &new_led_slope_down_2);
+
+	if (retval) {
+		/* allow only values between 0 and 5 (steps of 4ms) */
+		led_slope_down_2   = min(max(new_led_slope_down_2  , 0), 5);
+	}
+
+	return count;
 }
 
 static ssize_t store_an30259a_led_slope(struct device *dev,
@@ -760,6 +836,7 @@ static ssize_t store_an30259a_led_slope(struct device *dev,
 
 	return count;
 }
+
 
 static ssize_t store_led_r(struct device *dev,
 	struct device_attribute *devattr, const char *buf, size_t count)
@@ -949,6 +1026,14 @@ static DEVICE_ATTR(led_speed, 0664, show_an30259a_led_speed, \
 					store_an30259a_led_speed);
 static DEVICE_ATTR(led_slope, 0664, show_an30259a_led_slope, \
 					store_an30259a_led_slope);
+static DEVICE_ATTR(led_slope_up_1, 0664, show_an30259a_led_slope_up_1, \
+					store_an30259a_led_slope_up_1);
+static DEVICE_ATTR(led_slope_up_2, 0664, show_an30259a_led_slope_up_2, \
+					store_an30259a_led_slope_up_2);
+static DEVICE_ATTR(led_slope_down_1, 0664, show_an30259a_led_slope_down_1, \
+					store_an30259a_led_slope_down_1);
+static DEVICE_ATTR(led_slope_down_2, 0664, show_an30259a_led_slope_down_2, \
+					store_an30259a_led_slope_down_2);
 static DEVICE_ATTR(led_br_lev, 0664, NULL, \
 					store_an30259a_led_br_lev);
 static DEVICE_ATTR(led_lowpower, 0664, NULL, \
@@ -978,6 +1063,10 @@ static struct attribute *sec_led_attributes[] = {
 	&dev_attr_led_intensity.attr,
 	&dev_attr_led_speed.attr,
 	&dev_attr_led_slope.attr,
+	&dev_attr_led_slope_up_1.attr,
+	&dev_attr_led_slope_up_2.attr,
+	&dev_attr_led_slope_down_1.attr,
+	&dev_attr_led_slope_down_2.attr,
 	&dev_attr_led_br_lev.attr,
 	&dev_attr_led_lowpower.attr,
 	NULL,
@@ -1099,10 +1188,13 @@ static int __devinit an30259a_probe(struct i2c_client *client,
 	if (ret) {
 		dev_err(&client->dev,
 			"Failed to create sysfs group for samsung specific led\n");
-		goto exit;
+		goto exit2;
 	}
 #endif
 	return ret;
+
+exit2: 
+	device_destroy(sec_class, 0);
 exit:
 	mutex_destroy(&data->mutex);
 	kfree(data);
