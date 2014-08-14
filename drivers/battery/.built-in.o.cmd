@@ -1,1 +1,0 @@
-cmd_drivers/battery/built-in.o :=  /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o drivers/battery/built-in.o drivers/battery/samsung_battery.o drivers/battery/battery-factory.o drivers/battery/max17047_fuelgauge.o drivers/battery/max77693_charger.o 

@@ -1,1 +1,0 @@
-cmd_drivers/rtc/built-in.o :=  /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o drivers/rtc/built-in.o drivers/rtc/rtc-lib.o drivers/rtc/hctosys.o drivers/rtc/rtc-core.o drivers/rtc/alarm.o drivers/rtc/alarm-dev.o drivers/rtc/rtc-max77686.o drivers/rtc/rtc-s3c.o 

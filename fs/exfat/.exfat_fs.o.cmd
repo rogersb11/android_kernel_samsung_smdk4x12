@@ -1,1 +1,0 @@
-cmd_fs/exfat/exfat_fs.o := /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o fs/exfat/exfat_fs.o fs/exfat/exfat_super.o 

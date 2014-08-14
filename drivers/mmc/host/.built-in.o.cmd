@@ -1,1 +1,0 @@
-cmd_drivers/mmc/host/built-in.o :=  /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o drivers/mmc/host/built-in.o drivers/mmc/host/mshci.o drivers/mmc/host/mshci-s3c.o drivers/mmc/host/sdhci.o drivers/mmc/host/sdhci-s3c.o 

@@ -1,1 +1,0 @@
-cmd_drivers/char/diag/diagchar.o := /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o drivers/char/diag/diagchar.o drivers/char/diag/diagchar_core.o drivers/char/diag/diagchar_hdlc.o drivers/char/diag/diagfwd.o drivers/char/diag/diagmem.o drivers/char/diag/diagfwd_cntl.o 

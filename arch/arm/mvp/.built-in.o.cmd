@@ -1,1 +1,0 @@
-cmd_arch/arm/mvp/built-in.o :=  /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o arch/arm/mvp/built-in.o arch/arm/mvp/mvpkm/built-in.o arch/arm/mvp/commkm/built-in.o arch/arm/mvp/pvtcpkm/built-in.o arch/arm/mvp/oektestkm/built-in.o 

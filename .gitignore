@@ -32,6 +32,10 @@ modules.builtin
 *.lzo
 *.patch
 *.gcno
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9d02cde3e8f722653b70ec71ace0c90760106cb8
 #
 # Top-level generic files
 #
@@ -43,11 +47,19 @@ modules.builtin
 /System.map
 /Module.markers
 /Module.symvers
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9d02cde3e8f722653b70ec71ace0c90760106cb8
 #
 # git files that we don't want to ignore even it they are dot-files
 #
 !.gitignore
 !.mailmap
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9d02cde3e8f722653b70ec71ace0c90760106cb8
 #
 # Generated include files
 #
@@ -55,6 +67,7 @@ include/config
 include/linux/version.h
 include/generated
 arch/*/include/generated
+<<<<<<< HEAD
 # stgit generated dirs
 patches-*
 # quilt's files
@@ -63,11 +76,29 @@ series
 # cscope files
 cscope.*
 ncscope.*
+=======
+
+# stgit generated dirs
+patches-*
+
+# quilt's files
+patches
+series
+
+# cscope files
+cscope.*
+ncscope.*
+
+>>>>>>> 9d02cde3e8f722653b70ec71ace0c90760106cb8
 # gnu global files
 GPATH
 GRTAGS
 GSYMS
 GTAGS
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9d02cde3e8f722653b70ec71ace0c90760106cb8
 *.orig
 *~
 \#*#

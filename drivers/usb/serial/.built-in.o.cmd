@@ -1,1 +1,0 @@
-cmd_drivers/usb/serial/built-in.o :=  /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o drivers/usb/serial/built-in.o drivers/usb/serial/usbserial.o drivers/usb/serial/pl2303.o drivers/usb/serial/qcserial.o drivers/usb/serial/usb_wwan.o drivers/usb/serial/csvt.o 

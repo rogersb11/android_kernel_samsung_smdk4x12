@@ -1,1 +1,0 @@
-cmd_drivers/regulator/built-in.o :=  /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o drivers/regulator/built-in.o drivers/regulator/core.o drivers/regulator/dummy.o drivers/regulator/fixed.o drivers/regulator/max77686.o drivers/regulator/max77693.o drivers/regulator/wm8994-regulator.o 

@@ -1,1 +1,0 @@
-cmd_drivers/char/built-in.o :=  /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o drivers/char/built-in.o drivers/char/mem.o drivers/char/random.o drivers/char/misc.o drivers/char/hw_random/built-in.o drivers/char/s3c_mem.o drivers/char/exynos_mem.o drivers/char/diag/built-in.o 

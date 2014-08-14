@@ -1,1 +1,0 @@
-cmd_sound/usb/built-in.o :=  /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o sound/usb/built-in.o sound/usb/snd-usb-audio.o sound/usb/snd-usbmidi-lib.o sound/usb/misc/built-in.o sound/usb/usx2y/built-in.o sound/usb/caiaq/built-in.o sound/usb/6fire/built-in.o 

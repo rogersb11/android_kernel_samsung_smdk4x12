@@ -1,1 +1,0 @@
-cmd_sound/soc/snd-soc-core.o := /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o sound/soc/snd-soc-core.o sound/soc/soc-core.o sound/soc/soc-dapm.o sound/soc/soc-jack.o sound/soc/soc-cache.o sound/soc/soc-utils.o 

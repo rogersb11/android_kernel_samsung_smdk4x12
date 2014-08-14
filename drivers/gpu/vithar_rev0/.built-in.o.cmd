@@ -1,1 +1,0 @@
-cmd_drivers/gpu/vithar_rev0/built-in.o :=  rm -f drivers/gpu/vithar_rev0/built-in.o; /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ar rcsD drivers/gpu/vithar_rev0/built-in.o

@@ -1,1 +1,0 @@
-cmd_net/dns_resolver/dns_resolver.o := /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o net/dns_resolver/dns_resolver.o net/dns_resolver/dns_key.o net/dns_resolver/dns_query.o 

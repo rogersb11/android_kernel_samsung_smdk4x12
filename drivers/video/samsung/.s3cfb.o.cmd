@@ -1,1 +1,0 @@
-cmd_drivers/video/samsung/s3cfb.o := /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o drivers/video/samsung/s3cfb.o drivers/video/samsung/s3cfb_main.o drivers/video/samsung/s3cfb_ops.o drivers/video/samsung/lcdfreq.o 

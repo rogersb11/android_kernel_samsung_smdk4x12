@@ -1,1 +1,0 @@
-cmd_drivers/hid/hid-wiimote.o := /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o drivers/hid/hid-wiimote.o drivers/hid/hid-wiimote-core.o drivers/hid/hid-wiimote-ext.o drivers/hid/hid-wiimote-debug.o 
