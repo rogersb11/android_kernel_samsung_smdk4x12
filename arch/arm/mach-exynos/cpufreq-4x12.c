@@ -26,8 +26,6 @@
 #include <plat/clock.h>
 #include <plat/cpu.h>
 
-#define CPUFREQ_LEVEL_END	(L14 + 1)
-
 #undef PRINT_DIV_VAL
 
 #undef ENABLE_CLKOUT
@@ -351,7 +349,32 @@ static const unsigned int asv_voltage_s[CPUFREQ_LEVEL_END] = {
 	1050000, 1025000, 1000000, 1000000, 1000000, 950000, 950000
 };
 
+<<<<<<< HEAD
 #if defined(CONFIG_MACH_GC1)
+/* ASV table for 12.5mV step */
+static const unsigned int asv_voltage_step_12_5[CPUFREQ_LEVEL_END][12] = {
+	/*   ASV0,    ASV1,    ASV2,    ASV3,	 ASV4,	  ASV5,	   ASV6,    ASV7,    ASV8,    ASV9,   ASV10,   ASV11 */
+	{	0,       0,	  0,	   0,	    0,	     0,	      0,       0,       0,       0,	  0,       0 },	/* L0 - Not used */
+	{	0,       0,	  0,	   0,	    0,	     0,	      0,       0,       0,       0,	  0,       0 },	/* L1 - Not used */
+	{ 1325000, 1312500, 1300000, 1287500, 1300000, 1287500,	1275000, 1250000, 1250000, 1237500, 1225000, 1212500 },
+	{ 1300000, 1275000, 1237500, 1237500, 1250000, 1250000,	1237500, 1212500, 1200000, 1200000, 1187500, 1175000 },
+	{ 1225000, 1212500, 1200000, 1187500, 1200000, 1187500,	1175000, 1150000, 1137500, 1125000, 1125000, 1112500 },
+	{ 1175000, 1162500, 1150000, 1137500, 1150000, 1137500,	1125000, 1100000, 1100000, 1075000, 1075000, 1062500 },
+	{ 1125000, 1112500, 1100000, 1087500, 1100000, 1087500,	1075000, 1050000, 1037500, 1025000, 1025000, 1012500 },
+	{ 1100000, 1087500, 1075000, 1075000, 1075000, 1062500,	1050000, 1037500, 1025000, 1012500, 1012500, 1000000 }, /* 900 */
+	{ 1062500, 1050000, 1025000, 1025000, 1025000, 1012500,	1000000,  987500,  987500,  987500,  987500,  975000 }, /* 800 */
+	{ 1012500, 1000000,  975000,  975000,  975000,  975000,	 962500,  962500,  950000,  950000,  950000,  937500 },
+	{ 1000000,  987500,  962500,  962500,  962500,  962500,	 950000,  950000,  937500,  937500,  937500,  925000 },
+	{  987500,  975000,  950000,  937500,  950000,  937500,	 937500,  937500,  912500,  912500,  912500,  900000 },
+	{  975000,  962500,  950000,  925000,  950000,  925000,	 925000,  925000,  900000,  900000,  900000,  887500 },
+	{  950000,  937500,  925000,  900000,  925000,  900000,	 900000,  900000,  900000,  887500,  875000,  862500 },
+	{  925000,  912500,  900000,  900000,  900000,  900000,	 900000,  900000,  887500,  875000,  875000,  862500 },
+};
+#else
+||||||| parent of da404c7... Impemented CPU OC(max 1.6GHz)  & UV support
+=======
+#if defined(CONFIG_MACH_GC1)
+>>>>>>> da404c7... Impemented CPU OC(max 1.6GHz)  & UV support
 /* ASV table for 12.5mV step */
 static const unsigned int asv_voltage_step_12_5[CPUFREQ_LEVEL_END][12] = {
 	/*   ASV0,    ASV1,    ASV2,    ASV3,	 ASV4,	  ASV5,	   ASV6,    ASV7,    ASV8,    ASV9,   ASV10,   ASV11 */
@@ -375,8 +398,8 @@ static const unsigned int asv_voltage_step_12_5[CPUFREQ_LEVEL_END][12] = {
 /* ASV table for 12.5mV step */
 static const unsigned int asv_voltage_step_12_5[CPUFREQ_LEVEL_END][12] = {
 	/*   ASV0,    ASV1,    ASV2,    ASV3,	 ASV4,	  ASV5,	   ASV6,    ASV7,    ASV8,    ASV9,   ASV10,   ASV11 */
-	{	0,       0,	  0,	   0,	    0,	     0,	      0,       0,       0,       0,	  0,       0 },	/* L0 - Not used */
-	{	0,       0,	  0,	   0,	    0,	     0,	      0,       0,       0,       0,	  0,       0 },	/* L1 - Not used */
+	{ 1400000, 1400000, 1400000, 1400000, 1387500, 1387500, 1375000, 1362500, 1350000, 1337500, 1325000, 1312500 },
+	{ 1387500, 1375000, 1362500, 1350000, 1337500, 1325000, 1312500, 1300000, 1287500, 1275000, 1262500, 1250000 },
 	{ 1325000, 1312500, 1300000, 1287500, 1300000, 1287500,	1275000, 1250000, 1250000, 1237500, 1225000, 1212500 },
 	{ 1300000, 1275000, 1237500, 1237500, 1250000, 1250000,	1237500, 1212500, 1200000, 1200000, 1187500, 1175000 },
 	{ 1225000, 1212500, 1200000, 1187500, 1200000, 1187500,	1175000, 1150000, 1137500, 1125000, 1125000, 1112500 },
@@ -609,6 +632,7 @@ static unsigned int get_max_cpufreq_idx(void)
 {
 	int index = -EINVAL;
 
+<<<<<<< HEAD
 #if defined(CONFIG_EXYNOS4X12_800MHZ_SUPPORT)
 	index = L8;
 #elif defined(CONFIG_EXYNOS4X12_400MHZ_SUPPORT)
@@ -627,6 +651,36 @@ static unsigned int get_max_cpufreq_idx(void)
 			else
 				index = L2;
 		}
+||||||| parent of da404c7... Impemented CPU OC(max 1.6GHz)  & UV support
+	/* exynos4x12 prime supports 1.6GHz */
+	if (samsung_rev() >= EXYNOS4412_REV_2_0)
+		index = L0;
+	else {
+	/* exynos4x12 supports only 1.4GHz and 1.1GHz */
+		if (exynos_armclk_max != 1400000)
+			index = L6;
+		else
+			index = L2;
+=======
+#if defined(CONFIG_EXYNOS4X12_800MHZ_SUPPORT)
+	index = L8;
+#elif defined(CONFIG_EXYNOS4X12_400MHZ_SUPPORT)
+	index = L12;
+#else
+	if (soc_is_exynos4212()) {
+		index = L1;
+	} else if (soc_is_exynos4412()) {
+		/* exynos4x12 prime supports 1.6GHz */
+		if (samsung_rev() >= EXYNOS4412_REV_2_0)
+			index = L0;
+		else {
+		/* exynos4x12 supports only 1.4GHz and 1.1GHz */
+			if (exynos_armclk_max != 1400000)
+				index = L6;
+			else
+			index = L0; /* Allow the full use of the freq. table (max. 1.6GHz) */
+		}
+>>>>>>> da404c7... Impemented CPU OC(max 1.6GHz)  & UV support
 	}
 #endif
 

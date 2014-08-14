@@ -336,7 +336,6 @@ config CPU_FREQ_GOV_CONSERVATIVE
 
 	  If in doubt, say N.
 
-<<<<<<< HEAD
 config CPU_FREQ_DEFAULT_GOV_PEGASUSQPLUS
 	bool "pegasusqplus"
 	select CPU_FREQ_GOV_PEGASUSQPLUS
@@ -452,8 +451,6 @@ config CPU_FREQ_GOV_LULZACTIVEQ
         help
           'lulzactiveq' - hotplug mechanism added in lulzactive
 
-=======
->>>>>>> 9d02cde3e8f722653b70ec71ace0c90760106cb8
 config CPU_FREQ_GOV_ADAPTIVE
 	tristate "'adaptive' cpufreq policy governor"
 	help
