@@ -1,0 +1,1 @@
+cmd_drivers/gpio/built-in.o :=  /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o drivers/gpio/built-in.o drivers/gpio/gpiolib.o drivers/gpio/secgpio_dvs.o drivers/gpio/gpio_dvs/built-in.o drivers/gpio/gpio-exynos4.o drivers/gpio/gpio-plat-samsung.o 

@@ -1,0 +1,1 @@
+cmd_drivers/mfd/built-in.o :=  /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o drivers/mfd/built-in.o drivers/mfd/wm8994-core.o drivers/mfd/wm8994-irq.o drivers/mfd/mfd-core.o drivers/mfd/max77686.o drivers/mfd/max77686-irq.o drivers/mfd/max77693.o drivers/mfd/max77693-irq.o 

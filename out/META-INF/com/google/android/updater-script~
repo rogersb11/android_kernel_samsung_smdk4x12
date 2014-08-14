@@ -1,0 +1,81 @@
+ui_print("");
+ui_print(" RB11-Shift Kernel");
+ui_print(" Galaxy S2 I777/959G ");
+ui_print(" ");
+ui_print(" ");
+show_progress(0.100000, 0);
+
+#script was written by AJ Newark
+
+mount("ext4", "EMMC", "/dev/block/mmcblk0p9", "/system");
+mount("ext4", "EMMC", "/dev/block/mmcblk0p10", "/data");
+mount("ext4", "EMMC", "/dev/block/mmcblk0p11", "/sdcard");
+mount("ext4", "EMMC", "/dev/block/mmcblk0p7", "/cache");
+mount("ext4", "EMMC", "/dev/block/mmcblk0p12", "/preload");
+
+# ---- Flash the kernel ----
+ui_print("");
+ui_print("Installing Shift Kernel for you pleasure...");
+ui_print("Also Installing STweaks Control App........");
+ui_print("-----------------------------------------");
+show_progress(0.100000, 60);
+package_extract_dir("system", "/system");
+assert(package_extract_file("zImage", "/tmp/zImage"),
+       write_raw_image("/tmp/zImage", "/dev/block/mmcblk0p5"),
+#       write_raw_image("/tmp/zImage", "/dev/block/mmcblk0p6"),
+       delete("/tmp/zImage"));
+show_progress(0.100000, 0);
+show_progress(0.100000, 0);
+
+# ---- Clean ----
+ui_print("Cleaning leftover kernel junk..................");
+ui_print("Anytime now....................................");
+ui_print("-----------------------------------------");
+show_progress(0.100000, 60);
+delete_recursive("/data/.siyah");
+delete("/system/etc/init.d/S91voltctrl");
+delete("/system/etc/init.d/S98bolt_siyah");
+delete("/system/etc/init.d/S_volt_scheduler");
+delete_recursive("/data/void-settings");
+delete("/res/misc/void");
+delete("/system/bin/void");
+delete("/xbin/bin/void");
+delete("/res/misc/NEAK-Downloader.apk");
+delete_recursive("/data/neak");
+delete("/res/neak.extra");
+delete_recursive("/sbin/near");
+delete("/system/etc/lionheart");
+delete("/system/etc/schedmc");
+delete_recursive("/sys/devices/system/cpu/cpu0/cpufreq");
+delete_recursive("/sys/devices/system/cpu/cpu/cpufreq");
+delete("/sys/devices/system/cpu/cpu/sched_mc_power_savings");
+delete_recursive("/system/.androidmeda");
+delete_recursive("/data/data/net.fluxi.xxTweaker");
+delete_recursive("/data/data/net.fluxi.xxTweak/");
+delete("/data/app/net.fluxi.xxTweaker-1.apk");
+delete("/data/.notweaker");
+delete_recursive("/data/.Abyss/");
+delete_recursive("/system/.Abyss/");
+delete("/sbin/ext/abyss.sh");
+delete("/res/misc/S90abyss");
+delete("/data/data/com.teamblockbuster.thoravukk.app");
+delete("/data/app/com.teamblockbuster.thoravukk.app");
+delete("/system/etc/init.d/thoravukk");
+delete("/data/.thoravukk");
+delete_recursive("/data/data/com.teamblockbuster");
+delete("/system/litepro");
+delete("/system/etc/init.d/99nstools");
+delete("/data/user.log");
+delete("/system/Hawker.u.copier");
+ui_print("");
+show_progress(1.000000, 0);
+delete("/data/.siyah/*.profile");
+ui_print(" ");
+ui_print("Updating Needed files...");
+package_extract_dir("system", "/system");
+ui_print("");ui_print("  * Installation Was A Success *");ui_print("  * Enjoy Yourself *");
+unmount("/system");
+unmount("/preload");
+unmount("/data");
+unmount("/sdcard");
+

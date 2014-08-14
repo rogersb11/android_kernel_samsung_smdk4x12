@@ -1,0 +1,1 @@
+cmd_drivers/usb/gadget/g_android.o := /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o drivers/usb/gadget/g_android.o drivers/usb/gadget/android.o 

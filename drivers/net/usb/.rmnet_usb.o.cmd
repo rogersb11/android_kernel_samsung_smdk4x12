@@ -1,0 +1,1 @@
+cmd_drivers/net/usb/rmnet_usb.o := /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o drivers/net/usb/rmnet_usb.o drivers/net/usb/rmnet_usb_ctrl.o drivers/net/usb/rmnet_usb_data.o 

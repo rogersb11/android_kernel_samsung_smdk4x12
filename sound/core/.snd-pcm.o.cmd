@@ -1,0 +1,1 @@
+cmd_sound/core/snd-pcm.o := /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o sound/core/snd-pcm.o sound/core/pcm.o sound/core/pcm_native.o sound/core/pcm_lib.o sound/core/pcm_timer.o sound/core/pcm_misc.o sound/core/pcm_memory.o 

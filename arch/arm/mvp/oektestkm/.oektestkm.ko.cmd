@@ -1,0 +1,1 @@
+cmd_arch/arm/mvp/oektestkm/oektestkm.ko := /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL -r  -T /home/brett/shifted/scripts/module-common.lds --build-id  -o arch/arm/mvp/oektestkm/oektestkm.ko arch/arm/mvp/oektestkm/oektestkm.o arch/arm/mvp/oektestkm/oektestkm.mod.o

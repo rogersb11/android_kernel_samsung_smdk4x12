@@ -1,0 +1,1 @@
+cmd_drivers/char/hw_random/rng-core.o := /home/brett/Desktop/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.7.4-2014.01/bin/arm-cortex_a9-linux-gnueabihf-ld -EL    -r -o drivers/char/hw_random/rng-core.o drivers/char/hw_random/core.o 
