@@ -527,20 +527,14 @@ static struct regulator_init_data ldo25_redwood_init_data = {
 static struct regulator_init_data max77686_buck1_data = {
 	.constraints = {
 		.name = "vdd_mif range",
-		.min_uV = 600000,
+		.min_uV = 850000,
 #ifdef CONFIG_SLP
 		.max_uV = 1100000,
 #else
-<<<<<<< HEAD
 #if defined(CONFIG_MACH_M3_JPN_DCM)
 		.max_uV = 1200000,
 #else
 		.max_uV = 1050000,
-||||||| parent of da404c7... Impemented CPU OC(max 1.6GHz)  & UV support
-		.max_uV = 1050000,
-=======
-		.max_uV = 1200000,
->>>>>>> da404c7... Impemented CPU OC(max 1.6GHz)  & UV support
 #endif
 #endif
 		.always_on = 1,
@@ -554,7 +548,7 @@ static struct regulator_init_data max77686_buck1_data = {
 static struct regulator_init_data max77686_buck2_data = {
 	.constraints = {
 		.name = "vdd_arm range",
-		.min_uV = 600000,
+		.min_uV = 850000,
 		.max_uV = 1500000,
 		.apply_uV = 1,
 		.always_on = 1,
@@ -568,30 +562,18 @@ static struct regulator_init_data max77686_buck2_data = {
 static struct regulator_init_data max77686_buck3_data = {
 	.constraints = {
 		.name = "vdd_int range",
-<<<<<<< HEAD
 #if defined(CONFIG_MACH_M3_JPN_DCM)
 		.min_uV = 825000,
 #else
 		.min_uV = 850000,
 #endif
-||||||| parent of da404c7... Impemented CPU OC(max 1.6GHz)  & UV support
-		.min_uV = 850000,
-=======
-		.min_uV = 600000,
->>>>>>> da404c7... Impemented CPU OC(max 1.6GHz)  & UV support
 #ifdef CONFIG_SLP
 		.max_uV = 1150000,
 #else
-<<<<<<< HEAD
 #if defined(CONFIG_MACH_M3_JPN_DCM)
 		.max_uV = 1300000,
 #else
 		.max_uV = 1100000,
-||||||| parent of da404c7... Impemented CPU OC(max 1.6GHz)  & UV support
-		.max_uV = 1100000,
-=======
-		.max_uV = 1300000,
->>>>>>> da404c7... Impemented CPU OC(max 1.6GHz)  & UV support
 #endif
 #endif
 		.always_on = 1,
@@ -605,7 +587,7 @@ static struct regulator_init_data max77686_buck3_data = {
 static struct regulator_init_data max77686_buck4_data = {
 	.constraints = {
 		.name = "vdd_g3d range",
-		.min_uV = 600000,
+		.min_uV = 850000,
 #ifdef CONFIG_SLP
 		.max_uV = 1100000,
 #else

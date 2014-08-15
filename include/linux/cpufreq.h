@@ -24,9 +24,6 @@
 
 #define CPUFREQ_NAME_LEN 16
 
-#if defined(CONFIG_CPU_EXYNOS4212) || defined(CONFIG_CPU_EXYNOS4412)
-#define CPUFREQ_LEVEL_END		(L14 + 1)
-#endif
 
 /*********************************************************************
  *                     CPUFREQ NOTIFIER INTERFACE                    *
@@ -373,7 +370,6 @@ extern struct cpufreq_governor cpufreq_gov_ondemand;
 extern struct cpufreq_governor cpufreq_gov_conservative;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_conservative)
 <<<<<<< HEAD
-<<<<<<< HEAD
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_NEOX)
 extern struct cpufreq_governor cpufreq_gov_neox;
 #define CPUFREQ_DEFAULT_GOVERNOR  (&cpufreq_gov_neox)
@@ -401,12 +397,6 @@ extern struct cpufreq_governor cpufreq_gov_HYPER;
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND)
 extern struct cpufreq_governor cpufreq_gov_INTELLIDEMAND;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_INTELLIDEMAND)
-||||||| parent of da404c7... Impemented CPU OC(max 1.6GHz)  & UV support
-=======
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_ZZMOOVE)
-extern struct cpufreq_governor cpufreq_gov_zzmoove;
-#define CPUFREQ_DEFAULT_GOVERNOR       (&cpufreq_gov_zzmoove)
->>>>>>> da404c7... Impemented CPU OC(max 1.6GHz)  & UV support
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_INTERACTIVE)
 extern struct cpufreq_governor cpufreq_gov_interactive;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_interactive)
@@ -480,7 +470,6 @@ void   cpufreq_cpu_put(struct cpufreq_policy *data);
 
 /* the following are really really optional */
 extern struct freq_attr cpufreq_freq_attr_scaling_available_freqs;
-ssize_t show_available_freqs(struct cpufreq_policy *policy, char *buf);
 
 void cpufreq_frequency_table_get_attr(struct cpufreq_frequency_table *table,
 				      unsigned int cpu);
@@ -489,8 +478,3 @@ void cpufreq_frequency_table_put_attr(unsigned int cpu);
 
 
 #endif /* _LINUX_CPUFREQ_H */
-
-#define SCALING_MAX_COUPLED 1
-#define SCALING_MAX_UNDEFINED 0
-#define SCALING_MAX_UNCOUPLED -1
-
