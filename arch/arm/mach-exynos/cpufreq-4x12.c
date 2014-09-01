@@ -44,7 +44,7 @@ struct cpufreq_clkdiv {
 	unsigned int	clkdiv1;
 };
 
-unsigned int exynos4x12_volt_table[CPUFREQ_LEVEL_END];
+static unsigned int exynos4x12_volt_table[CPUFREQ_LEVEL_END];
 
 static struct cpufreq_frequency_table exynos4x12_freq_table[] = {
 	//{L0, 2000*1000},
@@ -670,15 +670,6 @@ static unsigned int get_max_cpufreq_idx(void)
 			else
 				index = L2;
 		}
-	/* exynos4x12 prime supports 1.6GHz */
-	if (samsung_rev() >= EXYNOS4412_REV_2_0)
-		index = L0; //L0
-	else {
-	/* exynos4x12 supports only 1.4GHz and 1.1GHz */
-		if (exynos_armclk_max != 1400000)
-			index = L6;
-		else
-			index = L2;
 	}
 #endif
 
