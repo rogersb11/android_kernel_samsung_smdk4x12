@@ -56,7 +56,7 @@
 #define SUPPORT_LPM_PAN_DISPLAY
 
 #ifdef SUPPORT_LPM_PAN_DISPLAY
-#if defined(CONFIG_MACH_KONA) || defined(CONFIG_MACH_TAB3)
+#if defined(CONFIG_MACH_KONA) || defined(CONFIG_MACH_TAB3) || defined(CONFIG_MACH_T0)
 extern unsigned int lpcharge;
 #endif
 #endif
@@ -1125,14 +1125,14 @@ int s3cfb_pan_display(struct fb_var_screeninfo *var, struct fb_info *fb)
 #endif
 
 #ifdef SUPPORT_LPM_PAN_DISPLAY
-#if defined(CONFIG_MACH_KONA) || defined(CONFIG_MACH_TAB3)
+#if defined(CONFIG_MACH_KONA) || defined(CONFIG_MACH_TAB3) || defined(CONFIG_MACH_T0)
 	if (lpcharge) {
 #endif
 	/* support LPM (off charging mode) display based on FBIOPAN_DISPLAY */
 	s3cfb_check_var(var, fb);
 	s3cfb_set_par(fb);
 	s3cfb_enable_window(fbdev, win->id);
-#if defined(CONFIG_MACH_KONA) || defined(CONFIG_MACH_TAB3)
+#if defined(CONFIG_MACH_KONA) || defined(CONFIG_MACH_TAB3) || defined(CONFIG_MACH_T0)
 	}
 #endif
 #endif
