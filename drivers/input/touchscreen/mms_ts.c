@@ -144,7 +144,13 @@ enum {
 struct device *sec_touchscreen;
 static struct device *bus_dev;
 
-int touch_is_pressed = 0;
+
+int touch_is_pressed;
+static unsigned int wake_start = -1;
+static unsigned int wake_start_y = -100;
+static unsigned int x_lo;
+static unsigned int x_hi;
+static unsigned int y_tolerance = 132;
 
 #if defined(CONFIG_TARGET_LOCALE_KOR)
 static int noise_mode_indicator;
@@ -3328,8 +3334,11 @@ static int __devinit mms_ts_probe(struct i2c_client *client,
 
 #ifdef CONFIG_TOUCH_WAKE
   touchwake_data = info;
-    if (touchwake_data == NULL)
-    pr_err("[TOUCHWAKE] Failed to set touchwake_data\n");
+  	if (touchwake_data == NULL)
+		pr_err("[TOUCHWAKE] Failed to set touchwake_data\n");
+  x_lo = info->max_x / 10 * 1;  /* 10% display width */
+  x_hi = info->max_x / 10 * 9;  /* 90% display width */
+  y_tolerance = info->max_y / 10 * 3 / 2;
 #endif  
 
 	sec_touchscreen = device_create(sec_class,
