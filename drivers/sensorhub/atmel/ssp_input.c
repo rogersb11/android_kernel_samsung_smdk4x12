@@ -14,6 +14,12 @@
  */
 #include "ssp.h"
 
+#ifdef CONFIG_TOUCH_WAKE
+#include <linux/touch_wake.h>
+
+static int old_state;
+#endif
+
 /*************************************************************************/
 /* SSP Kernel -> HAL input evnet function                                */
 /*************************************************************************/
@@ -118,6 +124,17 @@ void report_prox_data(struct ssp_data *data, struct sensor_value *proxdata)
 {
 	ssp_dbg("[SSP] Proximity Sensor Detect : %u, raw : %u\n",
 		proxdata->prox[0], proxdata->prox[1]);
+
+#ifdef CONFIG_TOUCH_WAKE
+   if (old_state != proxdata->prox[0]) {
+   	if (proxdata->prox[0]) { // true if proximity detected
+	    proximity_detected();
+    	} else {
+            proximity_off();
+    	}
+	old_state = proxdata->prox[0];
+   }
+#endif
 
 	data->buf[PROXIMITY_SENSOR].prox[0] = proxdata->prox[0];
 	data->buf[PROXIMITY_SENSOR].prox[1] = proxdata->prox[1];

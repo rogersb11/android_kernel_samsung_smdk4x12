@@ -173,11 +173,24 @@ struct device *sec_touchscreen;
 static struct device *bus_dev;
 
 int touch_is_pressed;
+
+#ifdef CONFIG_TOUCH_WAKE
+static DEFINE_MUTEX(touchwake_lock);
+extern void request_suspend_state(int);
+extern int get_suspend_state(void);
 static unsigned int wake_start = -1;
 static unsigned int wake_start_y = -100;
 static unsigned int x_lo;
 static unsigned int x_hi;
 static unsigned int y_tolerance = 132;
+bool touch_wake_enabled = false;
+bool s2w_enabled = false;
+bool suspended = false;
+int touch_counter = 0;
+int release_counter = 0;
+int touchoff_delay = 45000;
+unsigned long doubletap_time[2] = {0, 0};
+#endif
 
 #define ISC_DL_MODE	1
 
@@ -863,6 +876,55 @@ static void melfas_lcd_cb(struct tsp_lcd_callbacks *cb, bool en)
 }
 #endif
 
+#ifdef CONFIG_TOUCH_WAKE
+static void touchwake_force_wakeup(void)
+{
+ 	int state;
+
+ 	mutex_lock(&touchwake_lock);
+ 	state = get_suspend_state();
+ 	printk(KERN_ERR "[TSP] suspend state: %d\n", state);
+ 	if (state != 0)
+ 	request_suspend_state(0);
+ 	msleep(100);
+ 	mutex_unlock(&touchwake_lock);
+}
+
+static void touch_reset(void)
+{
+	touch_counter = 0;
+	release_counter = 0;
+}
+
+static void check_touch_press(bool pressed)
+{
+    if (touchoff_delay != 0 && pressed)
+     	touch_press();
+
+    if(pressed && touch_counter == 0)
+    {
+	doubletap_time[1] = jiffies;
+	touch_counter++;
+    }
+    else if (pressed && touch_counter == 1 && release_counter == 1)
+    {
+	doubletap_time[0] = jiffies;
+	touch_reset();
+	if(doubletap_time[0] - doubletap_time[1] < 50) {
+	    doubletap_time[0] = 0;
+	    doubletap_time[1] = 0;
+	    touch_press();
+	    touchwake_force_wakeup();
+   	}
+    } 
+    else if(!pressed && release_counter == 0)
+	release_counter++;
+    else
+	touch_reset();
+}
+#endif
+    
+
 static irqreturn_t mms_ts_interrupt(int irq, void *dev_id)
 {
 	struct mms_ts_info *info = dev_id;
@@ -1052,8 +1114,28 @@ static irqreturn_t mms_ts_interrupt(int irq, void *dev_id)
 				}
 			}
 #endif
+#ifdef CONFIG_TOUCH_WAKE
+			// slide2wake trigger
+			if (wake_start == i && x > x_hi
+			&& 	abs(wake_start_y - y) < y_tolerance
+			&& touchoff_delay == 0 && s2w_enabled && touch_wake_enabled && suspended) {
+				printk(KERN_ERR "[TSP] slide2wake up at: %4d\n",
+					x);
+				touch_press();
+				touchwake_force_wakeup();
+			}
+			wake_start = -1;
+#endif
 			continue;
 		}
+#ifdef CONFIG_TOUCH_WAKE
+		// slide2wake gesture start
+		if (x < x_lo) {
+			printk(KERN_ERR "[TSP] slide2wake down at: %4d\n", x);
+			wake_start = i;
+			wake_start_y = y;
+		}
+#endif
 
 		if (info->panel == 'M') {
 			input_mt_slot(info->input_dev, id);
@@ -1131,10 +1213,13 @@ static irqreturn_t mms_ts_interrupt(int irq, void *dev_id)
 #endif
 		}
 		touch_is_pressed++;
-#ifdef CONFIG_TOUCH_WAKE
-  touch_press();
-#endif
 	}
+#ifdef CONFIG_TOUCH_WAKE
+if (!s2w_enabled && touch_wake_enabled && suspended) {
+printk(KERN_ERR "[TSP] check_touch_press: %d\n", !!touch_is_pressed);
+check_touch_press(!!touch_is_pressed);
+}
+#endif
 	input_sync(info->input_dev);
 
 #if TOUCH_BOOSTER
@@ -4225,6 +4310,8 @@ static void mms_ts_early_suspend(struct early_suspend *h)
 	struct mms_ts_info *info;
 	info = container_of(h, struct mms_ts_info, early_suspend);
 	mms_ts_suspend(&info->client->dev);
+#else
+	suspended = true;
 #endif
 }
 
@@ -4234,6 +4321,8 @@ static void mms_ts_late_resume(struct early_suspend *h)
 	struct mms_ts_info *info;
 	info = container_of(h, struct mms_ts_info, early_suspend);
 	mms_ts_resume(&info->client->dev);
+#else
+	suspended = false;
 #endif
 }
 #endif
@@ -4536,6 +4625,31 @@ static struct i2c_driver mms_ts_driver = {
 		   },
 	.id_table = mms_ts_id,
 };
+
+#ifdef CONFIG_TOUCHBOOST_CONTROL
+void update_boost_freq (unsigned int input_boost_freq) {
+	boost_freq = input_boost_freq;
+}
+
+void update_boost_enabled (bool input_boost_enabled) {
+	touch_boost_enabled = input_boost_enabled;
+}
+#endif
+
+#ifdef CONFIG_TOUCH_WAKE
+void set_touch_wake_enabled (bool touch_wake_status) {
+	touch_wake_enabled = touch_wake_status;
+}
+EXPORT_SYMBOL(touch_wake_enabled);
+
+void set_s2w_enabled (bool s2w_status) {
+	s2w_enabled = s2w_status;
+}
+
+void set_touchoff_delay (int delay) {
+	touchoff_delay = delay;
+}
+#endif
 
 static int __init mms_ts_init(void)
 {
