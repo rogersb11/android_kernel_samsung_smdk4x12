@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TOOLCHAIN="/home/brett/Desktop/toolchains/LinaroGCC/bin/arm-eabi-"
+TOOLCHAIN="/home/brett/Desktop/toolchains/LinaroGCC-4.9.2/bin/arm-eabi-"
 STRIP="/home/brett/Desktop/toolchains/LinaroGCC/bin/arm-eabi-strip"
 OUTDIR="out"
 CONFIG="cm_t0lte_defconfig"
