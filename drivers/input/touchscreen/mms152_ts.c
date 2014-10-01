@@ -4572,6 +4572,7 @@ err_reg_input_dev:
 err_config:
 	input_free_device(input_dev);
 	/*input_dev = NULL;*/
+	info->pdata->power(0);
 err_input_alloc:
 	kfree(info);
 err_alloc:
