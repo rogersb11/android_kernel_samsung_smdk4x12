@@ -304,27 +304,24 @@ int max77693_muic_charger_cb(enum cable_type_muic cable_type)
 #if !defined(USE_CHGIN_INTR)
 #ifdef CONFIG_BATTERY_MAX77693_CHARGER
 	struct power_supply *psy = power_supply_get_by_name("max77693-charger");
-	union power_supply_propval value;
 #endif
 #endif
 
 #ifdef CONFIG_CHARGER_MAX77693_BAT
 	struct power_supply *psy = power_supply_get_by_name("battery");
-	union power_supply_propval value;
 #endif
+	union power_supply_propval value;
 	static enum cable_type_muic previous_cable_type = CABLE_TYPE_NONE_MUIC;
 	struct power_supply *psy_p = power_supply_get_by_name("ps");
 
-	pr_info("%s: %d\n", __func__, cable_type);
+	pr_info("%s: cable_type(%d), prev_cable(%d)\n", __func__, cable_type, previous_cable_type);
 
 	switch (cable_type) {
 	case CABLE_TYPE_NONE_MUIC:
 	case CABLE_TYPE_OTG_MUIC:
 	case CABLE_TYPE_JIG_UART_OFF_MUIC:
 	case CABLE_TYPE_MHL_MUIC:
-#ifdef CONFIG_MUIC_MAX77693_SUPPORT_PS_CABLE
 	case CABLE_TYPE_POWER_SHARING_MUIC:
-#endif
 		is_cable_attached = false;
 		break;
 	case CABLE_TYPE_USB_MUIC:
@@ -348,6 +345,11 @@ int max77693_muic_charger_cb(enum cable_type_muic cable_type)
 		return -EINVAL;
 	}
 
+	if (previous_cable_type == cable_type) {
+		pr_info("%s : SKIP cable setting\n", __func__);
+		goto skip_cable_setting;
+	}
+
 #if !defined(USE_CHGIN_INTR)
 #ifdef CONFIG_BATTERY_MAX77693_CHARGER
 	if (!psy || !psy->set_property) {
@@ -359,11 +361,6 @@ int max77693_muic_charger_cb(enum cable_type_muic cable_type)
 	psy->set_property(psy, POWER_SUPPLY_PROP_ONLINE, &value);
 #endif
 #endif
-
-	if (previous_cable_type == cable_type) {
-		pr_info("%s : SKIP cable setting\n", __func__);
-		goto skip_cable_setting;
-	}
 
 #ifdef CONFIG_CHARGER_MAX77693_BAT
 	/* charger setting */
@@ -406,11 +403,9 @@ int max77693_muic_charger_cb(enum cable_type_muic cable_type)
 	case CABLE_TYPE_SMARTDOCK_TA_MUIC:
 		current_cable_type = POWER_SUPPLY_TYPE_MISC;
 		break;
-#ifdef CONFIG_MUIC_MAX77693_SUPPORT_PS_CABLE
 	case CABLE_TYPE_POWER_SHARING_MUIC:
 		current_cable_type = POWER_SUPPLY_TYPE_POWER_SHARING;
 		break;
-#endif
 	default:
 		pr_err("%s: invalid type for charger:%d\n",
 				__func__, cable_type);
@@ -421,7 +416,6 @@ int max77693_muic_charger_cb(enum cable_type_muic cable_type)
 		pr_err("%s: fail to get battery psy\n", __func__);
 		return 0;
 	} else {
-#ifdef CONFIG_MUIC_MAX77693_SUPPORT_PS_CABLE
 		if (current_cable_type == POWER_SUPPLY_TYPE_POWER_SHARING) {
 			value.intval = current_cable_type;
 			psy_p->set_property(psy_p, POWER_SUPPLY_PROP_ONLINE, &value);
@@ -430,14 +424,28 @@ int max77693_muic_charger_cb(enum cable_type_muic cable_type)
 				value.intval = current_cable_type;
 				psy_p->set_property(psy_p, POWER_SUPPLY_PROP_ONLINE, &value);
 			}
-#endif
 			value.intval = current_cable_type<<ONLINE_TYPE_MAIN_SHIFT;
 			psy->set_property(psy, POWER_SUPPLY_PROP_ONLINE, &value);
-#ifdef CONFIG_MUIC_MAX77693_SUPPORT_PS_CABLE
 		}
-#endif
 	}
 skip:
+#else
+	if (!psy_p || !psy_p->set_property) {
+		pr_err("%s: fail to get ps psy\n", __func__);
+		return 0;
+	}
+
+	if (cable_type == CABLE_TYPE_POWER_SHARING_MUIC) {
+		value.intval = POWER_SUPPLY_TYPE_POWER_SHARING;
+		psy_p->set_property(psy_p, POWER_SUPPLY_PROP_ONLINE, &value);
+		pr_info("%s : CABLE_TYPE_POWER_SHARING_MUIC\n", __func__);
+	} else {
+		if (previous_cable_type == CABLE_TYPE_POWER_SHARING_MUIC) {
+			value.intval = POWER_SUPPLY_TYPE_BATTERY;
+			psy_p->set_property(psy_p, POWER_SUPPLY_PROP_ONLINE, &value);
+			pr_info("%s : pb CABLE_TYPE_POWER_SHARING_MUIC\n", __func__);
+		}
+	}
 #endif
 	previous_cable_type = cable_type;
 skip_cable_setting:
