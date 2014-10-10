@@ -2,7 +2,7 @@
 
 TOOLCHAIN="/home/brett/Desktop/toolchains/LinaroGCC/bin/arm-eabi-"
 STRIP="/home/brett/Desktop/toolchains/LinaroGCC/bin/arm-eabi-strip"
-OUTDIR="/home/brett/Desktop/out"
+OUTDIR="/home/brett/shifted/out2"
 CONFIG="cyanogenmod_n7100_defconfig"
 MODULES=("/home/brett/shifted/arch/arm/mvp/commkm/commkm.ko" "/home/brett/shifted/arch/arm/mvp/mvpkm/mvpkm.ko" "/home/brett/shifted/arch/arm/mvp/pvtcpkm/pvtcpkm.ko" "drivers/interceptor/vpnclient.ko" "drivers/net/wireless/bcmdhd/dhd.ko" "drivers/new/wireless/btlock/btlock.ko" "drivers/scsi/scsi_wait_scan.ko" "/home/brett/shifted/fs/cifs/cifs.ko")
 KERNEL_DIR="/home/brett/shifted"
