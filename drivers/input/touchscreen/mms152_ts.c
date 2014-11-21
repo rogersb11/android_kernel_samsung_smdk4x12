@@ -89,7 +89,7 @@ struct gesture_finger {
 static struct gesture_finger gesture_fingers[MAX_GESTURES][MAX_GESTURE_FINGERS] = { { { -1, -1 } } };
 
 // Enabled state
-static bool gestures_enabled = true;
+static bool gestures_enabled = false;
 DECLARE_WAIT_QUEUE_HEAD(gestures_wq);
 static spinlock_t gestures_lock;
 
