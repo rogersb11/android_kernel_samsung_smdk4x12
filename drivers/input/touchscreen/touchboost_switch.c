@@ -32,7 +32,7 @@
 // Global variables
 /*****************************************/
 
-int tb_switch 	  = TOUCHBOOST_ON;
+int tb_switch 	  = TOUCHBOOST_OFF;
 int tb_freq	  = TOUCHBOOST_DEFAULT_FREQ;
 int tb_freq_level = TOUCHBOOST_FREQ_UNDEFINED;
 
