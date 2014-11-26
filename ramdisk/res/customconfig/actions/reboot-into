@@ -1,0 +1,10 @@
+#!/system/bin/sh
+
+if [ "a$2" != "a" ];then
+  if [ "$2" == "recovery" ];then
+    reboot recovery
+  else
+    echo -n $2 > /data/media/.nextboot
+    reboot
+  fi
+fi

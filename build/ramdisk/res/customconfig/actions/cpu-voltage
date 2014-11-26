@@ -1,0 +1,31 @@
+#!/system/bin/sh
+
+if [ "a$3" == "a" ]; then
+	evalcmd='eval "echo \$CPUVOLT$2"';
+	eval $evalcmd;
+else
+	evalcmd='eval "CPUVOLT$2=$3"';
+	eval $evalcmd;
+	evalcmd='eval "echo \$CPUVOLT$2"';
+	eval $evalcmd;
+		echo "200000 $CPUVOLT20" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "300000 $CPUVOLT19" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "400000 $CPUVOLT18" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "500000 $CPUVOLT17" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "100000 $CPUVOLT16" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "200000 $CPUVOLT15" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "300000 $CPUVOLT14" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "400000 $CPUVOLT13" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "500000 $CPUVOLT12" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "600000 $CPUVOLT11" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "700000 $CPUVOLT10" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "800000 $CPUVOLT9" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "900000 $CPUVOLT8" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "1000000 $CPUVOLT7" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "1100000 $CPUVOLT6" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "1200000 $CPUVOLT5" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "1300000 $CPUVOLT4" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "1400000 $CPUVOLT3" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "1500000 $CPUVOLT2" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+		echo "1600000 $CPUVOLT1" > /sys/devices/system/cpu/cpu0/cpufreq/vdd_levels;
+fi;

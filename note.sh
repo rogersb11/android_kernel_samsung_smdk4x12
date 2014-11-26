@@ -3,10 +3,9 @@
 TOOLCHAIN="/home/brett/android/custom/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7/bin/arm-eabi-"
 STRIP="/home/brett/android/custom/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7/bin/arm-eabi-strip"
 OUTDIR="out"
+BUILD="build"
 CONFIG="cm_t0lte_defconfig"
-MODULES=("/home/brett/shifted/arch/arm/mvp/commkm/commkm.ko" "/home/brett/shifted/arch/arm/mvp/mvpkm/mvpkm.ko" "/home/brett/shifted/arch/arm/mvp/pvtcpkm/pvtcpkm.ko" "drivers/interceptor/vpnclient.ko" "drivers/net/wireless/bcmdhd/dhd.ko" "drivers/new/wireless/btlock/btlock.ko" "drivers/scsi/scsi_wait_scan.ko" "/home/brett/shifted/fs/cifs/cifs.ko")
 KERNEL_DIR="/home/brett/shifted"
-MODULES_DIR="/home/brett/shifted/out/lib/modules"
 CURRENTDATE=$(date +"%m-%d")
 
 
@@ -33,20 +32,19 @@ echo "Initial Build..."
 		make ${CONFIG}
 		make -j8 ARCH=arm CROSS_COMPILE=${TOOLCHAIN}
 
-echo "Building Modules..."
-		make -j8 ARCH=arm CROSS_COMPILE=${TOOLCHAIN} modules
 
-	for module in "${MODULES[@]}" ; do
-			cp "${module}" ${MODULES_DIR}
-			${STRIP} --strip-unneeded ${MODULES_DIR}/*
-	done
-
-echo "Building CWM Kernel..."
+echo "Building Shift T0LTE Kernel..."
 		cd ${KERNEL_DIR}
 		make -j8 ARCH=arm CROSS_COMPILE=${TOOLCHAIN}
-		cp arch/arm/boot/zImage ${OUTDIR}
+		cp arch/arm/boot/zImage ${BUILD}
+		cd ${BUILD}
+		echo "Compressing ramdisk..."
+		./init.sh
+		# Make boot.img
+		./mkbootimg --kernel zImage --ramdisk ramdisk.cpio.lzma --board smdk4x12 --base 0x10000000 --pagesize 2048 --ramdiskaddr 0x11000000 -o boot.img
+		cp boot.img ${OUTDIR}
 		cd ${OUTDIR}
 		echo "Creating Shift CWM kernel zip..."
-		zip -r Shift-4.8-CM.zip ./ -x *.zip *.gitignore
+		zip -r Shift-3.8.zip ./ -x *.zip *.gitignore
 
 echo "Done!"

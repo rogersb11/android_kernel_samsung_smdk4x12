@@ -1,0 +1,14 @@
+#!/system/bin/sh
+
+if [ "a$2" != "a" ];then
+  zswap_size=$2
+fi
+
+mount -o remount,rw /
+
+echo "1" > /sys/block/zswap0/reset;
+echo ${zswap_size}000000 > /sys/block/zswap0/disksize;
+
+mount -o remount,ro /
+
+echo $zswap_size

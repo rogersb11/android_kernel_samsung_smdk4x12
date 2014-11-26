@@ -1,0 +1,19 @@
+#!/system/bin/sh
+
+PROFILE=`cat /data/.shift/.active.profile`;
+. /data/.shift/${PROFILE}.profile;
+
+if [ "$zswap_size" != 4 ]; then
+	if [ -e /system/xbin/bash ] || [ -e /system/bin/bash ]; then
+		/sbin/zswap_stats_ex;
+	else
+		/sbin/busybox mount -o remount,rw /;
+		echo "total         used         free" > /tmp/Swap_Check;
+		free | grep Swap: | cut -c 13-44 >> /tmp/Swap_Check;
+		chmod 777 /tmp/Swap_Check;
+		SWAP_CHECK=`cat /tmp/Swap_Check`;
+		echo "$SWAP_CHECK";
+	fi;
+else
+	echo "ZSWAP IS OFFLINE";
+fi;

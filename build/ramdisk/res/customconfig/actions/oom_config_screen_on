@@ -1,0 +1,44 @@
+#!/system/bin/sh
+
+# $1 - "oom_config_screen_on"
+# $2 - value=
+
+if [ "a$2" != "a" ]; then
+	oom_config_screen_on=$2;
+
+	case "${oom_config_screen_on}" in
+		ajk)
+			echo "1024,2048,4096,3072,5120,14848" > /sys/module/lowmemorykiller/parameters/minfree;
+			echo "32" > /sys/module/lowmemorykiller/parameters/cost;
+		;;
+		light)
+			echo "1024,2048,2560,4096,6144,8192" > /sys/module/lowmemorykiller/parameters/minfree;
+			echo "64" > /sys/module/lowmemorykiller/parameters/cost;
+		;;
+		low)
+			echo "1024,2048,4096,6144,12288,14848" > /sys/module/lowmemorykiller/parameters/minfree;
+			echo "32" > /sys/module/lowmemorykiller/parameters/cost;
+		;;
+		medium)
+			echo "2560,4096,5632,10240,12288,16384" > /sys/module/lowmemorykiller/parameters/minfree;
+			echo "32" > /sys/module/lowmemorykiller/parameters/cost;
+		;;
+		default)
+			echo "1024,2048,4096,14336,16384,32768" > /sys/module/lowmemorykiller/parameters/minfree;
+			echo "32" > /sys/module/lowmemorykiller/parameters/cost;
+		;;
+		aggressive)
+			echo "8192,10240,12288,16384,24576,32768" > /sys/module/lowmemorykiller/parameters/minfree;
+			echo "16" > /sys/module/lowmemorykiller/parameters/cost;
+		;;
+		exterminate)
+			echo "8192,10240,16384,32768,49152,65536" > /sys/module/lowmemorykiller/parameters/minfree;
+			echo "8" > /sys/module/lowmemorykiller/parameters/cost;
+		;;
+		*)
+			oom_config_screen_on=medium;
+		;;
+	esac;
+fi;
+
+echo ${oom_config_screen_on};

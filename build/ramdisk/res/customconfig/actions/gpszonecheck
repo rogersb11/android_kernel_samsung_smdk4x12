@@ -1,0 +1,6 @@
+#!/system/bin/sh
+
+(
+	GPS=`cat /system/etc/gps.conf`
+	echo "$GPS"
+)&

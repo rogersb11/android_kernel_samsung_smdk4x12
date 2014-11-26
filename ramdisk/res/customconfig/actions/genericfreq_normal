@@ -1,0 +1,28 @@
+#!/system/bin/sh
+
+PROFILE=`cat /data/.shift/.active.profile`;
+MAX_FREQ_OC=`cat /data/.shift/${PROFILE}.profile | grep scaling_max_freq_oc | sed -e 's/scaling_max_freq_oc=//g'`;
+
+if [ "a$2" != "a" ]; then
+
+	filename=$(basename "$2");
+
+	if [ "a$3" == "a" ]; then
+		evalcmd='eval "echo \$$filename"';
+		eval $evalcmd;
+	else
+		newfreq="$3";
+		evalcmd='eval "$filename=$newfreq"';
+		eval $evalcmd;
+		evalcmd='eval "echo \$$filename"';
+		eval $evalcmd;
+
+		if [ -f $2 ]; then
+			if [ "$newfreq" -eq "1000000" ] && [ "$MAX_FREQ_OC" -gt "1000000" ]; then
+				echo "$MAX_FREQ_OC" > $2;
+			else
+				echo "$newfreq" > $2;
+			fi;
+		fi;
+	fi;
+fi;

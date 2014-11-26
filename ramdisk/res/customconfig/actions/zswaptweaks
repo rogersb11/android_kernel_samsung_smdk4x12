@@ -1,0 +1,86 @@
+#!/system/bin/sh
+
+# ZSWAP
+# Now we load the ZSWAP as RAM SWAP and gain more compressed RAM.
+# ZSWAP compress ratio is 50% so if set 300MB, then it will give clean 150MB More RAM,
+# This gives us 1GB RAM device or more.
+
+# $1 - "zswaptweaks"
+# $2 - value=
+
+if [ "a$2" == "a" ]; then
+	echo "$zswaptweaks";
+else
+	zswaptweaks=$2;
+	echo "$zswaptweaks";
+fi;
+
+ZSWAP_TWEAKS()
+{
+	local ZSWAP=`ls -d /sys/block/vnswap0*`;
+	for i in $ZSWAP; do
+		echo "0" > $i/queue/rotational;
+		echo "0" > $i/queue/iostats;
+		echo "1" > $i/queue/rq_affinity;
+	done;
+}
+
+case "${zswaptweaks}" in
+	1)
+		if [ `cat /proc/swaps | grep 150000 |  wc -l` != "1" ]; then
+			if [ -e /dev/block/vnswap0 ]; then
+				# for on the fly changes we need to shutdown ZSWAP first
+				swapoff /dev/block/vnswap0 >/dev/null 2>&1;
+				echo "1" > /sys/block/vnswap0/reset;
+				# setting size of ZSWAP swap drive
+				echo "153604000" > /sys/block/vnswap0/disksize;
+				# creating SWAP from ZSWAP drive
+				mkswap /dev/block/vnswap0 >/dev/null;
+				# activating ZSWAP swap
+				swapon /dev/block/vnswap0 >/dev/null 2>&1;
+				ZSWAP_TWEAKS;
+			fi;
+		fi;
+	;;
+	2)
+		if [ `cat /proc/swaps | grep 300000 |  wc -l` != "1" ]; then
+			if [ -e /dev/block/vnswap0 ]; then
+				# for on the fly changes we need to shutdown ZSWAP first
+				swapoff /dev/block/vnswap0 >/dev/null 2>&1;
+				echo "1" > /sys/block/vnswap0/reset;
+				# setting size of ZSWAP swap drive
+				echo "307202000" > /sys/block/vnswap0/disksize;
+				# creating SWAP from ZSWAP drive
+				mkswap /dev/block/vnswap0 >/dev/null;
+				# activating ZSWAP swap
+				swapon /dev/block/vnswap0 >/dev/null 2>&1;
+				ZSWAP_TWEAKS;
+			fi;
+		fi;
+	;;
+	3)
+		if [ `cat /proc/swaps | grep 600000 |  wc -l` != "1" ]; then
+			if [ -e /dev/block/vnswap0 ]; then
+				# for on the fly changes we need to shutdown ZSWAP first
+				swapoff /dev/block/vnswap0 >/dev/null 2>&1;
+				echo "1" > /sys/block/vnswap0/reset;
+				# setting size of RAM swap drive
+				echo "614404000" > /sys/block/vnswap0/disksize;
+				# creating SWAP from ZSWAP drive
+				mkswap /dev/block/vnswap0 >/dev/null;
+				# activating ZSWAP swap
+				swapon /dev/block/vnswap0 >/dev/null 2>&1;
+				ZSWAP_TWEAKS;
+			fi;
+		fi;
+	;;
+	4)
+		if [ -e /dev/block/vnswap0 ]; then
+			swapoff /dev/block/vnswap0 >/dev/null 2>&1;
+			echo "1" > /sys/block/vnswap0/reset;
+		fi;
+	;;
+	*)
+		zswaptweaks=4;
+	;;
+esac;
