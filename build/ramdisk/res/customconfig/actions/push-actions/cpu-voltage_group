@@ -1,6 +1,0 @@
-#!/system/bin/sh
-
-chmod 777 /tmp/cpu-voltage_group;
-VDD_INT=`cat /tmp/cpu-voltage_group`;
-
-echo $VDD_INT;
