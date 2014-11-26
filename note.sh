@@ -1,8 +1,8 @@
 #!/bin/bash
 
-TOOLCHAIN="/home/brett/android/custom/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7/bin/arm-eabi-"
-STRIP="/home/brett/android/custom/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7/bin/arm-eabi-strip"
-OUTDIR="out"
+TOOLCHAIN="/home/brett/Desktop/toolchains/LinaroGCC-4.9.1/bin/arm-eabi-"
+STRIP="/home/brett/Desktop/toolchains/LinaroGCC-4.9.1/bin/arm-eabi-strip"
+OUTDIR="/home/brett/shifted/out"
 BUILD="build"
 CONFIG="cm_t0lte_defconfig"
 KERNEL_DIR="/home/brett/shifted"
@@ -39,7 +39,6 @@ echo "Building Shift T0LTE Kernel..."
 		cp arch/arm/boot/zImage ${BUILD}
 		cd ${BUILD}
 		echo "Compressing ramdisk..."
-		./init.sh
 		# Make boot.img
 		./mkbootimg --kernel zImage --ramdisk ramdisk.cpio.lzma --board smdk4x12 --base 0x10000000 --pagesize 2048 --ramdiskaddr 0x11000000 -o boot.img
 		cp boot.img ${OUTDIR}
