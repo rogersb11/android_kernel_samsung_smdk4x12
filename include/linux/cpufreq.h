@@ -24,7 +24,7 @@
 
 #define CPUFREQ_NAME_LEN 16
 #if defined(CONFIG_CPU_EXYNOS4212) || defined(CONFIG_CPU_EXYNOS4412)
-#define CPUFREQ_LEVEL_END		(L20 + 1)
+#define CPUFREQ_LEVEL_END		(L19 + 1)
 #endif
 
 /*********************************************************************
@@ -371,7 +371,6 @@ extern struct cpufreq_governor cpufreq_gov_ondemand;
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_CONSERVATIVE)
 extern struct cpufreq_governor cpufreq_gov_conservative;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_conservative)
-<<<<<<< HEAD
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_NEOX)
 extern struct cpufreq_governor cpufreq_gov_neox;
 #define CPUFREQ_DEFAULT_GOVERNOR  (&cpufreq_gov_neox)
@@ -385,11 +384,11 @@ extern struct cpufreq_governor cpufreq_gov_darkness;
 extern struct cpufreq_governor cpufreq_gov_sleepy;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_sleepy)
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SMARTASS)
- extern struct cpufreq_governor cpufreq_gov_smartass;
- #define CPUFREQ_DEFAULT_GOVERNOR (&amp;cpufreq_gov_smartass)
+extern struct cpufreq_governor cpufreq_gov_smartass;
+#define CPUFREQ_DEFAULT_GOVERNOR (&amp;cpufreq_gov_smartass)
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SMARTASS2)
- extern struct cpufreq_governor cpufreq_gov_smartass2;
- #define CPUFREQ_DEFAULT_GOVERNOR (&amp;cpufreq_gov_smartassV2)
+extern struct cpufreq_governor cpufreq_gov_smartass2;
+#define CPUFREQ_DEFAULT_GOVERNOR (&amp;cpufreq_gov_smartassV2)
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SCARY)
 extern struct cpufreq_governor cpufreq_gov_scary;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_scary)
@@ -405,11 +404,6 @@ extern struct cpufreq_governor cpufreq_gov_interactive;
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_NIGHTMARE)
 extern struct cpufreq_governor cpufreq_gov_nightmare;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_nightmare)
-=======
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_INTERACTIVE)
-extern struct cpufreq_governor cpufreq_gov_interactive;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_interactive)
->>>>>>> 9d02cde3e8f722653b70ec71ace0c90760106cb8
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_ADAPTIVE)
 extern struct cpufreq_governor cpufreq_gov_adaptive;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_adaptive)
@@ -480,3 +474,8 @@ void cpufreq_frequency_table_put_attr(unsigned int cpu);
 
 
 #endif /* _LINUX_CPUFREQ_H */
+
+#define SCALING_MAX_COUPLED 1
+#define SCALING_MAX_UNDEFINED 0
+#define SCALING_MAX_UNCOUPLED -1
+
