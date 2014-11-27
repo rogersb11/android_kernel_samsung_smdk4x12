@@ -81,7 +81,9 @@ extern int mali_voltage_lock_init(void);
 extern int mali_voltage_lock_push(int lock_vol);
 extern int mali_voltage_lock_pop(void);
 #endif
+#ifdef CONFIG_MALI_VER_R4P0
 #define CONFIG_TC_VOLTAGE /* Temperature compensated voltage */
+#endif
 #endif
 
 static unsigned int get_curr_temp(struct s5p_tmu_info *info)
