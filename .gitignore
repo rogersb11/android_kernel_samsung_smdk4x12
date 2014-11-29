@@ -68,6 +68,7 @@ series
 cscope.*
 ncscope.*
 out/*
+build/*
 
 # stgit generated dirs
 patches-*
