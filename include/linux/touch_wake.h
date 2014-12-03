@@ -5,14 +5,6 @@
 
 #include <linux/input.h>
 
-struct touchwake_implementation
-{
-    void (* enable)(void);
-    void (* disable)(void);
-};
-
-void register_touchwake_implementation(struct touchwake_implementation * imp);
-
 void powerkey_pressed(void);
 void powerkey_released(void);
 void proximity_detected(void);
