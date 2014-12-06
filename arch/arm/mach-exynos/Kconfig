@@ -2134,6 +2134,10 @@ config CPU_FREQ_TETHERING
 	depends on QC_MODEM
 	default n
 
+config ABB_CONTROL
+	bool "Adaptive body bias control"
+	depends on EXYNOS4_CPUFREQ && CPU_EXYNOS4412
+
 config USBIRQ_BALANCING_LTE_HIGHTP
 	bool "USBIRQ_BALANCING_LTE_HIGHTP"
 	depends on QC_MODEM
@@ -2147,6 +2151,8 @@ config MACH_KONA_SENSOR
 	  BMA254 / BOSCH
 	  YAS532 / YAMAHA
 	  GP2A030A / SHARP
+
+	default n
 
 config MACH_GD2_SENSOR
 	bool "GD2 Sensor Enable"
