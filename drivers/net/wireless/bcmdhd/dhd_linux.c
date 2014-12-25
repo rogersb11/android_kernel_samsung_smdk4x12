@@ -4524,7 +4524,6 @@ dhd_preinit_ioctls(dhd_pub_t *dhd)
 		dhd_os_set_ioctl_resp_timeout(IOCTL_RESP_TIMEOUT);
 		DHD_INFO(("%s : Set IOCTL response time.\n", __FUNCTION__));
 	}
-
 #ifdef GET_CUSTOM_MAC_ENABLE
 	ret = wifi_platform_get_mac_addr(dhd->info->adapter, ea_addr.octet);
 	if (!ret) {
