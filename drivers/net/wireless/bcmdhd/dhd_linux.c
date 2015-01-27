@@ -1003,7 +1003,7 @@ static int dhd_set_suspend(int value, dhd_pub_t *dhd)
 
 				/* Enable packet filter, only allow unicast packet to send up */
 				dhd_enable_packet_filter(1, dhd);
-
+#endif
 #if defined(PASS_ALL_MCAST_PKTS) && defined(CUSTOMER_HW4)
 				allmulti = 0;
 				bcm_mkiovar("allmulti", (char *)&allmulti, 4,
@@ -1082,6 +1082,7 @@ static int dhd_set_suspend(int value, dhd_pub_t *dhd)
 				power_mode = PM_FAST;
 				dhd_wl_ioctl_cmd(dhd, WLC_SET_PM, (char *)&power_mode,
 				                 sizeof(power_mode), TRUE, 0);
+#endif
 #ifdef PKT_FILTER_SUPPORT
 				/* disable pkt filter */
 				dhd_enable_packet_filter(0, dhd);
