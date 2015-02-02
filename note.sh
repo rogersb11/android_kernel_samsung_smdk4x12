@@ -44,6 +44,6 @@ echo "Building Shift T0LTE Kernel..."
 		cp boot.img ${OUTDIR}
 		cd ${OUTDIR}
 		echo "Creating Shift CWM kernel zip..."
-		zip -r Shift-lollipop.zip ./ -x *.zip *.gitignore
+		zip -r Shift-LP-4.4.zip ./ -x *.zip *.gitignore
 
 echo "Done!"
