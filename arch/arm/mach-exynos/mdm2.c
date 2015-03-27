@@ -225,12 +225,7 @@ static void mdm_do_soft_power_on(struct mdm_modem_drv *mdm_drv)
 	int pblrdy;
 
 	pr_err("%s: soft resetting mdm modem\n", __func__);
-
-	mdm_drv->shutdown = 0;
-
-	mdm_peripheral_disconnect(mdm_drv);
-	mdm_toggle_soft_reset(mdm_drv);
-
+	
 	if (!mdm_drv->mdm2ap_pblrdy)
 		goto start_mdm_peripheral;
 
@@ -335,7 +330,7 @@ static void mdm_modem_shutdown(struct platform_device *pdev)
 static void modem_complete(struct device *pdev)
 {
 	struct mdm_platform_data *pdata;
-       
+
 	if (!pdev) {
 		pr_err("pdev is null!!\n");
 		return;

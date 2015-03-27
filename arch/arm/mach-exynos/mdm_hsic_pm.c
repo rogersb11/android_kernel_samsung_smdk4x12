@@ -40,6 +40,8 @@
 #include <linux/kernel.h>
 #include <linux/netdevice.h>
 #include <mach/mdm2.h>
+#endif
+#ifdef CONFIG_USB_ANDROID_SAMSUNG_COMPOSITE
 #include <linux/usb/android_composite.h>
 #endif
 #ifdef CONFIG_USBIRQ_BALANCING_LTE_HIGHTP

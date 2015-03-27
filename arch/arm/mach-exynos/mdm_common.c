@@ -385,12 +385,6 @@ static void mdm_reconnect_fn(struct work_struct *work)
 {
 	pr_info("mdm: check 2nd enumeration\n");
 
-	if (mdm_drv->shutdown)
-		return;
-
-	if (get_qmicm_mode(rmnet_pm_dev))
-		return;
-
 	if (mdm_check_main_connect(rmnet_pm_dev))
 		return;
 
@@ -875,7 +869,6 @@ static void mdm_modem_initialize_data(struct platform_device  *pdev,
 	mdm_drv->pdata->modem_complete = sim_detect_complete;
 	mdm_drv->sim_shutdown_req = false;
 #endif
-	mdm_drv->shutdown = 0;
 }
 
 int mdm_common_create(struct platform_device  *pdev,
