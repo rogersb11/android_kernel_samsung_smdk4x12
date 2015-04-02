@@ -3,12 +3,12 @@
 # SDIO Basic feature
 #####################
 
-DHDCFLAGS += -Wall -Wstrict-prototypes -Dlinux -DLINUX -DBCMDRIVER             \
+DHDCFLAGS += -Wall -Wstrict-prototypes -Dlinux -DLINUX -DBCMDRIVER            \
         -DBCMDONGLEHOST -DUNRELEASEDCHIP -DBCMDMA32 -DBCMFILEIMAGE            \
         -DDHDTHREAD -DBDC -DOOB_INTR_ONLY                                     \
-        -DDHD_BCMEVENTS -DSHOW_EVENTS -DBCMDBG                                \
-        -DMMC_SDIO_ABORT -DBCMSDIO -DBCMLXSDMMC -DWLP2P     \
-        -DWIFI_ACT_FRAME -DARP_OFFLOAD_SUPPORT          \
+        -DDHD_BCMEVENTS -DSHOW_EVENTS                                         \
+        -DMMC_SDIO_ABORT -DBCMSDIO -DBCMLXSDMMC -DWLP2P                       \
+        -DWIFI_ACT_FRAME -DARP_OFFLOAD_SUPPORT                                \
         -DKEEP_ALIVE -DCSCAN -DPKT_FILTER_SUPPORT                             \
         -DEMBEDDED_PLATFORM -DPNO_SUPPORT
 
@@ -21,7 +21,7 @@ DHDCFLAGS += -DWL_CFG80211
 
 # Debug
 DHDCFLAGS += -DSIMPLE_MAC_PRINT
-DHDCFLAGS += -DDEBUGFS_CFG80211
+#DHDCFLAGS += -DDEBUGFS_CFG80211
 # Print out kernel panic point of file and line info when assertion happened
 DHDCFLAGS += -DBCMASSERT_LOG
 
@@ -62,7 +62,6 @@ DHDCFLAGS += -DDISABLE_11H_SOFTAP
 DHDCFLAGS += -DSUPPORT_PM2_ONLY
 DHDCFLAGS += -DSUPPORT_DEEP_SLEEP
 DHDCFLAGS += -DSUPPORT_AMPDU_MPDU_CMD
-DHDCFLAGS += -DBLOCK_IPV6_PACKET
 
 # For special PNO Event keep wake lock for 10sec
 DHDCFLAGS += -DCUSTOM_PNO_EVENT_LOCK_xTIME=10
@@ -132,6 +131,7 @@ DHDCFLAGS += -DWL_CFG80211_STA_EVENT
 DHDCFLAGS += -DWL_IFACE_COMB_NUM_CHANNELS
 # To support p2p private command on kernel 3.8 or above
 DHDCFLAGS += -DWL_NEWCFG_PRIVCMD_SUPPORT
+DHDCFLAGS += -DCUSTOM_SET_SHORT_DWELL_TIME
 
 
 
@@ -140,7 +140,11 @@ DHDCFLAGS += -DWL_NEWCFG_PRIVCMD_SUPPORT
 # m: module type driver
 # y: built-in type driver
 ##########################
+ifeq ($(CONFIG_MODULES),y)
 DRIVER_TYPE ?= m
+else
+DRIVER_TYPE ?= y
+endif
 
 #########################
 # Chip dependent feature
@@ -191,6 +195,7 @@ ifeq ($(CONFIG_BCM4354),y)
   DRIVER_TYPE = y
 endif
   DHDCFLAGS += -DCUSTOM_PSPRETEND_THR=30
+  DHDCFLAGS += -DSUPPORT_P2P_GO_PS
 endif
 
 ifneq ($(CONFIG_BCM4339),)
@@ -298,6 +303,13 @@ ifneq ($(CONFIG_BCM4334),)
   DHDCFLAGS += -DPROP_TXSTATUS_VSDB
   DHDCFLAGS += -DWES_SUPPORT
   DHDCFLAGS += -DSUPPORT_WL_TXPOWER
+
+  # New Features
+#  DHDCFLAGS += -DWL11U
+  DHDCFLAGS += -DBCMCCX
+  DHDCFLAGS += -DOKC_SUPPORT
+  DHDCFLAGS += -DWES_SUPPORT
+  DHDCFLAGS += -DWLFBT
 ifeq ($(CONFIG_BCM4334),y)
   DHDCFLAGS += -DENABLE_INSMOD_NO_FW_LOAD
   DHDCFLAGS += -DUSE_LATE_INITCALL_SYNC
@@ -392,9 +404,9 @@ DHDCFLAGS += -include "dhd_sec_feature.h"
 # Others
 #########
 
-#EXTRA_LDFLAGS += --strip-debug
+EXTRA_LDFLAGS += --strip-debug
 
-EXTRA_CFLAGS += $(DHDCFLAGS) -DDHD_DEBUG
+EXTRA_CFLAGS += $(DHDCFLAGS)
 EXTRA_CFLAGS += -DSRCBASE=\"$(src)\"
 EXTRA_CFLAGS += -I$(src)/include/ -I$(src)/
 KBUILD_CFLAGS += -I$(LINUXDIR)/include -I$(shell pwd)

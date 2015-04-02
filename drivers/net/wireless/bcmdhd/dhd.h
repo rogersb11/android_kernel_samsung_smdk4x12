@@ -103,8 +103,9 @@ enum dhd_op_flags {
 #define MAX_CNTL_RX_TIMEOUT 1
 #endif /* MAX_CNTL_RX_TIMEOUT */
 
-#define DHD_SCAN_ASSOC_ACTIVE_TIME	40 /* ms: Embedded default Active setting from DHD */
-#define DHD_SCAN_UNASSOC_ACTIVE_TIME 80 /* ms: Embedded def. Unassoc Active setting from DHD */
+#define DHD_SCAN_ASSOC_ACTIVE_TIME	20 /* ms: Embedded default Active setting from DHD */
+#define DHD_SCAN_UNASSOC_ACTIVE_TIME	40 /* ms: Embedded def. Unassoc Active setting from DHD */
+#define DHD_SCAN_UNASSOC_ACTIVE_TIME_PS	30
 #define DHD_SCAN_PASSIVE_TIME		130 /* ms: Embedded default Passive setting from DHD */
 
 #ifndef POWERUP_MAX_RETRY
@@ -335,6 +336,7 @@ typedef struct dhd_pub {
 	struct task_struct * current_rxf;
 	int chan_isvht80;
 #endif /* CUSTOM_SET_CPUCORE */
+	int  short_dwell_time;
 } dhd_pub_t;
 #if defined(CUSTOMER_HW4)
 #define MAX_RESCHED_CNT 600
@@ -411,14 +413,86 @@ int dhd_pno_clean(dhd_pub_t *dhd);
  *  Wake locks are an Android power management concept. They are used by applications and services
  *  to request CPU resources.
  */
-extern int dhd_os_wake_lock(dhd_pub_t *pub);
-extern int dhd_os_wake_unlock(dhd_pub_t *pub);
-extern int dhd_os_wake_lock_timeout(dhd_pub_t *pub);
-extern int dhd_os_wake_lock_rx_timeout_enable(dhd_pub_t *pub, int val);
-extern int dhd_os_wake_lock_ctrl_timeout_enable(dhd_pub_t *pub, int val);
-extern int dhd_os_wake_lock_ctrl_timeout_cancel(dhd_pub_t *pub);
-extern int dhd_os_wd_wake_lock(dhd_pub_t *pub);
-extern int dhd_os_wd_wake_unlock(dhd_pub_t *pub);
+#ifdef CONFIG_HAS_WAKELOCK
+struct dhd_info;
+#define dhd_info_t struct dhd_info
+
+enum {
+	DHD_WL_rx = 0,
+	DHD_WL_ctrl,
+};
+
+#define dhd_wake_func(fn) \
+	extern int dhd_int_wake_##fn (dhd_info_t *dhd); \
+	static inline int dhd_os_wake_##fn (dhd_pub_t *pub) \
+	{ return dhd_int_wake_##fn ((dhd_info_t *)pub->info); }
+
+extern int dhd_int_wake_timeout_enable(dhd_info_t *dhd, int val, int wl);
+extern int dhd_int_wake_timeout_cancel(dhd_info_t *dhd, int wl);
+#define dhd_tmout_func(fn) \
+	static inline int dhd_os_wake_lock_##fn##_timeout_enable \
+		(dhd_pub_t *pub, int val) \
+	{ return dhd_int_wake_timeout_enable((dhd_info_t *)pub->info, val, \
+		DHD_WL_##fn ); } \
+	static inline int dhd_os_wake_lock_##fn##_timeout_cancel \
+		(dhd_pub_t *pub) \
+	{ return dhd_int_wake_timeout_cancel((dhd_info_t *)pub->info, \
+		DHD_WL_##fn ); }
+
+#define net_wake_func(fn) \
+	static inline int net_os_wake_##fn (struct net_device *dev) \
+	{ \
+		dhd_info_t *dhd = *(dhd_info_t **)netdev_priv(dev); \
+		return dhd?dhd_int_wake_##fn (dhd):0; \
+	}
+
+#define net_tmout_func(fn) \
+	static inline int net_os_wake_lock_##fn##_timeout_enable \
+		(struct net_device *dev, int val) \
+	{ \
+		dhd_info_t *dhd = *(dhd_info_t **)netdev_priv(dev); \
+		return dhd ? dhd_int_wake_timeout_enable(dhd, val, \
+			DHD_WL_##fn ) : 0; \
+	} \
+	static inline int net_os_wake_lock_##fn##_timeout_cancel \
+		(struct net_device *dev) \
+	{ \
+		dhd_info_t *dhd = *(dhd_info_t **)netdev_priv(dev); \
+		return dhd ? dhd_int_wake_timeout_cancel(dhd, \
+			DHD_WL_##fn ) : 0; \
+	} \
+
+/* Core wake functions */
+dhd_wake_func(lock);
+dhd_wake_func(unlock);
+dhd_wake_func(lock_timeout);
+dhd_tmout_func(rx);
+dhd_tmout_func(ctrl);
+
+/* struct net_device wrappers */
+net_wake_func(lock);
+net_wake_func(unlock);
+net_wake_func(lock_timeout);
+net_tmout_func(rx);
+net_tmout_func(ctrl);
+
+#define DHD_WD_LOCK  (1)
+#define DHD_WD_WAIVE (2)
+extern int dhd_int_wd_wake_lock(dhd_info_t *dhd);
+extern int dhd_int_wd_wake_unlock(dhd_info_t *dhd);
+static inline int dhd_os_wd_wake_lock(dhd_pub_t *pub)
+{ return (pub && pub->info) ? dhd_int_wd_wake_lock(pub->info) : 0; }
+static inline int dhd_os_wd_wake_unlock(dhd_pub_t *pub)
+{ return (pub && pub->info) ? dhd_int_wd_wake_unlock(pub->info) : 0; }
+
+#undef dhd_wake_func
+#undef dhd_tmount_func
+#undef net_wake_func
+#undef net_tmout_func
+#undef dhd_info_t
+#else
+#error CONFIG_HAS_WAKELOCK is required
+#endif
 
 inline static void MUTEX_LOCK_SOFTAP_SET_INIT(dhd_pub_t * dhdp)
 {
@@ -608,6 +682,10 @@ extern int dhd_os_check_wakelock(dhd_pub_t *pub);
 #ifdef CUSTOM_SET_CPUCORE
 extern void dhd_set_cpucore(dhd_pub_t *dhd, int set);
 #endif /* CUSTOM_SET_CPUCORE */
+extern void dhd_set_short_dwell_time(dhd_pub_t *dhd, int set);
+#ifdef CUSTOM_SET_SHORT_DWELL_TIME
+extern void net_set_short_dwell_time(struct net_device *dev, int set);
+#endif
 
 #if defined(KEEP_ALIVE)
 extern int dhd_keep_alive_onoff(dhd_pub_t *dhd);

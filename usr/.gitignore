@@ -1,0 +1,31 @@
+#
+# Generated files
+#
+gen_init_cpio
+initramfs_data.cpio
+initramfs_data.cpio.gz
+initramfs_data.cpio.bz2
+initramfs_data.cpio.lzma
+initramfs_list
+include
+initramfs/ignored
+initramfs/ramdisk
+galaxys2_initramfs_files/lib
+galaxys2_initramfs_files/modules
+galaxys2_initramfs_files/res
+galaxys2_initramfs_files/sbin
+galaxys2_initramfs_files/tmp
+
+#
+# Exceptions
+#
+!galaxys2_initramfs_files/busybox
+!galaxys2_initramfs_files/init
+!galaxys2_initramfs_files/mfc_fw.bin
+!galaxys2_initramfs_files/read_boot_headers
+#
+!i777_initramfs_files/busybox
+!i777_initramfs_files/init
+!i777_initramfs_files/mfc_fw.bin
+!i777_initramfs_files/read_boot_headers
+

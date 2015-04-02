@@ -889,8 +889,9 @@ vid_info_t vid_info[] = {
 
 #elif defined(BCM4334_CHIP)
 vid_info_t vid_info[] = {
-	{ 6, { 0x00, 0x00, 0x00,0x33, 0x33, }, { "semco" } },
-	{ 6, { 0x00, 0x00 ,0x00,0xfb, 0x50,}, { "semcosh" } },
+	{ 6, { 0x00, 0x00, 0x00, 0x33, 0x33, }, { "semco" } },
+	{ 6, { 0x00, 0x00, 0x00, 0xfb, 0x50, }, { "semcosh" } },
+	{ 6, { 0x00, 0x20, 0xc7, 0x00, 0x00, }, { "murata" } },
 	{ 0, { 0x00, }, { "murata" } }
 };
 
@@ -1126,6 +1127,21 @@ int dhd_check_module_mac(dhd_pub_t *dhd, struct ether_addr *mac)
 				index++;
 			}
 
+		}
+
+		/* Find a MAC address tuple */
+		while (elt && remained_len >= TLV_HDR_LEN) {
+			int body_len = (int)elt->len;
+
+			if ((elt->id == CIS_TUPLE_TAG_START) &&
+				(remained_len >= (body_len + TLV_HDR_LEN)) &&
+				(*elt->data == CIS_TUPLE_TAG_MACADDR)) {
+				/* found MAC Address tuple and
+				 * get the MAC Address data
+				 */
+				mac_addr = (uint8 *)elt + CIS_TUPLE_TAG_MACADDR_OFF;
+				break;
+			}
 		}
 
 		/* Find a MAC address tuple */

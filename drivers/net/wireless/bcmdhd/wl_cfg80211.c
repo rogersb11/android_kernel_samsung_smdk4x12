@@ -115,10 +115,12 @@
 static struct device *cfg80211_parent_dev = NULL;
 /* g_bcm_cfg should be static. Do not change */
 static struct bcm_cfg80211 *g_bcm_cfg = NULL;
+#ifdef DEBUGFS_CFG80211
 #ifdef CUSTOMER_HW4
 u32 wl_dbg_level = WL_DBG_ERR | WL_DBG_P2P_ACTION;
 #else
 u32 wl_dbg_level = WL_DBG_ERR;
+#endif
 #endif
 
 #define MAX_WAIT_TIME 1500
@@ -486,7 +488,7 @@ static void wl_ch_to_chanspec(int ch,
  * information element utilities
  */
 static void wl_rst_ie(struct bcm_cfg80211 *cfg);
-static __used s32 wl_add_ie(struct bcm_cfg80211 *cfg, u8 t, u8 l, u8 *v);
+static __maybe_unused s32 wl_add_ie(struct bcm_cfg80211 *cfg, u8 t, u8 l, u8 *v);
 static void wl_update_hidden_ap_ie(struct wl_bss_info *bi, u8 *ie_stream, u32 *ie_size);
 static s32 wl_mrg_ie(struct bcm_cfg80211 *cfg, u8 *ie_stream, u16 ie_size);
 static s32 wl_cp_ie(struct bcm_cfg80211 *cfg, u8 *dst, u16 dst_size);
@@ -535,7 +537,7 @@ static void wl_delay(u32 ms);
  * ibss mode utilities
  */
 static bool wl_is_ibssmode(struct bcm_cfg80211 *cfg, struct net_device *ndev);
-static __used bool wl_is_ibssstarter(struct bcm_cfg80211 *cfg);
+static __maybe_unused bool wl_is_ibssstarter(struct bcm_cfg80211 *cfg);
 
 /*
  * link up/down , default configuration utilities
@@ -558,7 +560,7 @@ int wl_cfg80211_get_ioctl_version(void);
 /*
  * find most significant bit set
  */
-static __used u32 wl_find_msb(u16 bit16);
+static __maybe_unused u32 wl_find_msb(u16 bit16);
 
 /*
  * rfkill support
@@ -4677,7 +4679,7 @@ void wl_cfg80211_update_power_mode(struct net_device *dev)
 		dev->ieee80211_ptr->ps = (pm == PM_OFF) ? false : true;
 }
 
-static __used u32 wl_find_msb(u16 bit16)
+static __maybe_unused u32 wl_find_msb(u16 bit16)
 {
 	u32 ret = 0;
 
@@ -5326,16 +5328,21 @@ wl_cfg80211_check_DFS_channel(struct bcm_cfg80211 *cfg, wl_af_params_t *af_param
 	struct wl_bss_info *bi = NULL;
 	bool result = false;
 	s32 i;
+	chanspec_t chanspec;
 
 	/* If DFS channel is 52~148, check to block it or not */
+	WL_DBG(("af_params->channel=%d\n", af_params->channel));
 	if (af_params &&
 		(af_params->channel >= 52 && af_params->channel <= 148)) {
 		if (!wl_cfgp2p_is_p2p_action(frame, frame_len)) {
+			WL_DBG(("non p2p action frame\n"));
 			bss_list = cfg->bss_list;
 			bi = next_bss(bss_list, bi);
 			for_each_bss(bss_list, bi, i) {
-				if (CHSPEC_IS5G(bi->chanspec) &&
-					((bi->ctl_ch ? bi->ctl_ch : CHSPEC_CHANNEL(bi->chanspec))
+				chanspec = wl_chspec_driver_to_host(bi->chanspec);
+				WL_DBG(("bi->chanspec=%d, chanspec=%d\n", bi->chanspec, chanspec));
+				if (CHSPEC_IS5G(chanspec) &&
+					((bi->ctl_ch ? bi->ctl_ch : CHSPEC_CHANNEL(chanspec))
 					== af_params->channel)) {
 					result = true;	/* do not block the action frame */
 					break;
@@ -7165,6 +7172,23 @@ fail:
 #define PNO_TIME		30
 #define PNO_REPEAT		4
 #define PNO_FREQ_EXPO_MAX	2
+static bool
+is_ssid_in_list(struct cfg80211_ssid *ssid, struct cfg80211_ssid *ssid_list, int count)
+{
+	int i;
+
+	if (!ssid || !ssid_list)
+		return FALSE;
+
+	for (i = 0; i < count; i++) {
+		if (ssid->ssid_len == ssid_list[i].ssid_len) {
+			if (strncmp(ssid->ssid, ssid_list[i].ssid, ssid->ssid_len) == 0)
+				return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 static int
 wl_cfg80211_sched_scan_start(struct wiphy *wiphy,
                              struct net_device *dev,
@@ -7173,10 +7197,11 @@ wl_cfg80211_sched_scan_start(struct wiphy *wiphy,
 	ushort pno_time = PNO_TIME;
 	int pno_repeat = PNO_REPEAT;
 	int pno_freq_expo_max = PNO_FREQ_EXPO_MAX;
-	wlc_ssid_t ssids_local[MAX_PFN_LIST_COUNT];
+	wlc_ssid_ext_t ssids_local[MAX_PFN_LIST_COUNT];
 	struct bcm_cfg80211 *cfg = wiphy_priv(wiphy);
 	struct cfg80211_ssid *ssid = NULL;
-	int ssid_count = 0;
+	struct cfg80211_ssid *hidden_ssid_list = NULL;
+	int ssid_cnt = 0;
 	int i;
 	int ret = 0;
 
@@ -7195,30 +7220,29 @@ wl_cfg80211_sched_scan_start(struct wiphy *wiphy,
 
 	memset(&ssids_local, 0, sizeof(ssids_local));
 
-	if (request->n_match_sets > 0) {
-		for (i = 0; i < request->n_match_sets; i++) {
-			ssid = &request->match_sets[i].ssid;
-			memcpy(ssids_local[i].SSID, ssid->ssid, ssid->ssid_len);
-			ssids_local[i].SSID_len = ssid->ssid_len;
-			WL_PNO((">>> PNO filter set for ssid (%s) \n", ssid->ssid));
-			ssid_count++;
+	if (request->n_ssids > 0)
+		hidden_ssid_list = request->ssids;
+
+	for (i = 0; i < request->n_match_sets && ssid_cnt < MAX_PFN_LIST_COUNT; i++) {
+		ssid = &request->match_sets[i].ssid;
+		/* No need to include null ssid */
+		if (ssid->ssid_len) {
+			memcpy(ssids_local[ssid_cnt].SSID, ssid->ssid, ssid->ssid_len);
+			ssids_local[ssid_cnt].SSID_len = ssid->ssid_len;
+			if (is_ssid_in_list(ssid, hidden_ssid_list, request->n_ssids)) {
+				ssids_local[ssid_cnt].hidden = TRUE;
+				WL_PNO((">>> PNO hidden SSID (%s) \n", ssid->ssid));
+			} else {
+				ssids_local[ssid_cnt].hidden = FALSE;
+				WL_PNO((">>> PNO non-hidden SSID (%s) \n", ssid->ssid));
+			}
+			ssid_cnt++;
 		}
 	}
 
-	if (request->n_ssids > 0) {
-		for (i = 0; i < request->n_ssids; i++) {
-			/* Active scan req for ssids */
-			WL_PNO((">>> Active scan req for ssid (%s) \n", request->ssids[i].ssid));
-
-			/* match_set ssids is a supert set of n_ssid list, so we need
-			 * not add these set seperately
-			 */
-		}
-	}
-
-	if (ssid_count) {
-		if ((ret = dhd_dev_pno_set_for_ssid(dev, ssids_local, request->n_match_sets,
-			pno_time, pno_repeat, pno_freq_expo_max, NULL, 0)) < 0) {
+	if (ssid_cnt) {
+		if ((ret = dhd_dev_pno_set_for_ssid(dev, ssids_local, ssid_cnt, pno_time,
+		        pno_repeat, pno_freq_expo_max, NULL, 0)) < 0) {
 			WL_ERR(("PNO setup failed!! ret=%d \n", ret));
 			return -EINVAL;
 		}
@@ -9120,6 +9144,9 @@ wl_notify_sched_scan_results(struct bcm_cfg80211 *cfg, struct net_device *ndev,
 		}
 
 		wl_set_drv_status(cfg, SCANNING, ndev);
+#ifdef CUSTOM_SET_SHORT_DWELL_TIME
+		net_set_short_dwell_time(ndev, FALSE);
+#endif
 #if FULL_ESCAN_ON_PFN_NET_FOUND
 		WL_PNO((">>> Doing Full ESCAN on PNO event\n"));
 		err = wl_do_escan(cfg, wiphy, ndev, NULL);
@@ -9408,7 +9435,7 @@ wl_cfg80211_netdev_notifier_call(struct notifier_block * nb,
 	switch (state) {
 		case NETDEV_DOWN:
 		{
-			int max_wait_timeout = 2;
+			int max_wait_timeout = 5;
 			int max_wait_count = 100;
 			unsigned long limit = jiffies + max_wait_timeout * HZ;
 			while (work_pending(&wdev->cleanup_work)) {
@@ -11315,7 +11342,7 @@ static bool wl_is_ibssmode(struct bcm_cfg80211 *cfg, struct net_device *ndev)
 	return wl_get_mode_by_netdev(cfg, ndev) == WL_MODE_IBSS;
 }
 
-static __used bool wl_is_ibssstarter(struct bcm_cfg80211 *cfg)
+static __maybe_unused bool wl_is_ibssstarter(struct bcm_cfg80211 *cfg)
 {
 	return cfg->ibss_starter;
 }
@@ -11327,7 +11354,7 @@ static void wl_rst_ie(struct bcm_cfg80211 *cfg)
 	ie->offset = 0;
 }
 
-static __used s32 wl_add_ie(struct bcm_cfg80211 *cfg, u8 t, u8 l, u8 *v)
+static __maybe_unused s32 wl_add_ie(struct bcm_cfg80211 *cfg, u8 t, u8 l, u8 *v)
 {
 	struct wl_ie *ie = wl_to_ie(cfg);
 	s32 err = 0;
@@ -12201,6 +12228,7 @@ int wl_cfg80211_do_driver_init(struct net_device *net)
 	return 0;
 }
 
+#ifdef DEBUGFS_CFG80211
 void wl_cfg80211_enable_trace(bool set, u32 level)
 {
 	if (set)
@@ -12208,6 +12236,7 @@ void wl_cfg80211_enable_trace(bool set, u32 level)
 	else
 		wl_dbg_level |= (WL_DBG_LEVEL & level);
 }
+#endif
 #if defined(WL_SUPPORT_BACKPORTED_KPATCHES) || (LINUX_VERSION_CODE >= KERNEL_VERSION(3, \
 	2, 0))
 static s32

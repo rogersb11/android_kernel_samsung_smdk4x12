@@ -1,0 +1,147 @@
+dir /cache 755 0 0
+dir /dev 755 0 0
+dir /dev/block 755 0 0
+nod /dev/block/mmcblk0 600 0 0 b 179 0
+nod /dev/block/mmcblk0p1 600 0 0 b 179 1
+nod /dev/block/mmcblk0p2 600 0 0 b 179 2
+nod /dev/block/mmcblk0p3 600 0 0 b 179 3
+nod /dev/block/mmcblk0p4 600 0 0 b 179 4
+nod /dev/block/mmcblk0p5 600 0 0 b 179 5
+nod /dev/block/mmcblk0p6 600 0 0 b 179 6
+nod /dev/block/mmcblk0p7 600 0 0 b 179 7
+nod /dev/block/mmcblk0p8 600 0 0 b 179 8
+nod /dev/block/mmcblk0p9 600 0 0 b 179 9
+nod /dev/block/mmcblk0p10 600 0 0 b 179 10
+nod /dev/block/mmcblk0p11 600 0 0 b 179 11
+nod /dev/block/mmcblk0p12 600 0 0 b 179 12
+nod /dev/block/mmcblk1 600 0 0 b 179 16
+nod /dev/block/mmcblk1p1 600 0 0 b 179 17
+slink /init /stage1/init 777 0 0
+dir /proc 755 0 0
+dir /stage1 755 0 0
+file /stage1/busybox /home/brett/kern/usr/galaxys2_initramfs_files/busybox 755 0 0
+file /stage1/init /home/brett/kern/usr/galaxys2_initramfs_files/init 755 0 0
+dir /res 755 0 0
+file /res/systemcat /home/brett/kern/usr/galaxys2_initramfs_files/res/systemcat 755 0 0
+file /res/systemstatus /home/brett/kern/usr/galaxys2_initramfs_files/res/systemstatus 755 0 0
+file /res/uci.sh /home/brett/kern/usr/galaxys2_initramfs_files/res/uci.sh 755 01000 01003
+file /res/update.url /home/brett/kern/usr/galaxys2_initramfs_files/res/update.url 755 01000 01003
+file /res/lights.exynos4.so /home/brett/kern/usr/galaxys2_initramfs_files/res/lights.exynos4.so 755 0 0
+dir /res/crontab 755 0 0
+file /res/crontab/new_job.sh /home/brett/kern/usr/galaxys2_initramfs_files/res/crontab/new_job.sh 755 0 0
+dir /res/crontab/cron-scripts 755 0 0
+file /res/crontab/cron-scripts/ad_block_update.sh /home/brett/kern/usr/galaxys2_initramfs_files/res/crontab/cron-scripts/ad_block_update.sh 755 0 0
+file /res/crontab/cron-scripts/database_optimizing.sh /home/brett/kern/usr/galaxys2_initramfs_files/res/crontab/cron-scripts/database_optimizing.sh 755 0 0
+file /res/crontab/cron-scripts/clear-file-cache.sh /home/brett/kern/usr/galaxys2_initramfs_files/res/crontab/cron-scripts/clear-file-cache.sh 755 0 0
+file /res/crontab/cron-scripts/drop-cache-only.sh /home/brett/kern/usr/galaxys2_initramfs_files/res/crontab/cron-scripts/drop-cache-only.sh 755 0 0
+file /res/crontab/cron-scripts/fix-perm.sh /home/brett/kern/usr/galaxys2_initramfs_files/res/crontab/cron-scripts/fix-perm.sh 755 0 0
+file /res/crontab/cron-scripts/zipalign.sh /home/brett/kern/usr/galaxys2_initramfs_files/res/crontab/cron-scripts/zipalign.sh 755 0 0
+dir /res/crontab_service 755 0 0
+file /res/crontab_service/service.sh /home/brett/kern/usr/galaxys2_initramfs_files/res/crontab_service/service.sh 755 0 0
+file /res/crontab_service/root /home/brett/kern/usr/galaxys2_initramfs_files/res/crontab_service/root 755 0 0
+file /res/crontab_service/dm_job.sh /home/brett/kern/usr/galaxys2_initramfs_files/res/crontab_service/dm_job.sh 755 0 0
+dir /res/customconfig 755 0 0
+file /res/customconfig/customconfig.xml /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/customconfig.xml 755 0 0
+file /res/customconfig/customconfig-helper /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/customconfig-helper 755 0 0
+file /res/customconfig/default.profile /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/default.profile 755 0 0
+file /res/customconfig/battery.profile /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/battery.profile 755 0 0
+file /res/customconfig/extreme-battery.profile /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/extreme-battery.profile 755 0 0
+file /res/customconfig/extreme-performance.profile /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/extreme-performance.profile 755 0 0
+file /res/customconfig/performance.profile /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/performance.profile 755 0 0
+dir /res/customconfig/actions 755 0 0
+file /res/customconfig/actions/gps /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/gps 755 0 0
+file /res/customconfig/actions/bln_effect /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/bln_effect 755 0 0
+file /res/customconfig/actions/chargecurrent /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/chargecurrent 755 0 0
+file /res/customconfig/actions/cpu-voltage /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/cpu-voltage 755 0 0
+file /res/customconfig/actions/generic /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/generic 755 0 0
+file /res/customconfig/actions/generic01 /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/generic01 755 0 0
+file /res/customconfig/actions/navigationbar /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/navigationbar 755 0 0
+file /res/customconfig/actions/reset-fuelgauge /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/reset-fuelgauge 755 0 0
+file /res/customconfig/actions/schedfeat /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/schedfeat 755 0 0
+file /res/customconfig/actions/sound_volume /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/sound_volume 755 0 0
+file /res/customconfig/actions/test-bln /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/test-bln 755 0 0
+file /res/customconfig/actions/usb-mode /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/usb-mode 755 0 0
+file /res/customconfig/actions/gpu-freq  /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/gpu-freq 755 0 0
+file /res/customconfig/actions/gpu-voltage  /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/gpu-voltage 755 0 0
+file /res/customconfig/actions/gpu-thresh  /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/gpu-thresh 755 0 0
+file /res/customconfig/actions/zram_size  /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/zram_size 755 0 0
+file /res/customconfig/actions/swap  /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/swap 755 0 0
+file /res/customconfig/actions/hotplug  /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/hotplug 755 0 0
+file /res/customconfig/actions/profile  /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/profile 755 0 0
+file /res/customconfig/actions/reset  /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/reset 755 0 0
+file /res/customconfig/actions/soundgasm_hp  /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/soundgasm_hp 755 0 0
+file /res/customconfig/actions/gpszonecheck  /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/gpszonecheck 755 0 0
+file /res/customconfig/actions/crontab  /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/crontab 755 0 0
+file /res/customconfig/actions/generic_cortex /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/generic_cortex 755 0 0
+file /res/customconfig/actions/cortexbrain_background_process /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/cortexbrain_background_process 777 0 0
+file /res/customconfig/actions/genericfreq /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/genericfreq 755 0 0
+file /res/customconfig/actions/android_logger /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/android_logger 755 0 0
+file /res/customconfig/actions/genericfreq_normal /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/genericfreq_normal 755 0 0
+file /res/customconfig/actions/genericfreq_oc /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/genericfreq_oc 755 0 0
+file /res/customconfig/actions/generickmem /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/generickmem 755 0 0
+file /res/customconfig/actions/remove-root /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/remove-root 755 0 0
+file /res/customconfig/actions/msaa /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/msaa 755 0 0
+file /res/customconfig/actions/fix_fs_on_boot_auto /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/fix_fs_on_boot_auto 755 0 0
+file /res/customconfig/actions/oom_config_screen_off /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/oom_config_screen_off 755 0 0
+file /res/customconfig/actions/oom_config_screen_on /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/oom_config_screen_on 755 0 0
+file /res/customconfig/actions/reboot-into /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/reboot-into 755 0 0
+file /res/customconfig/actions/screen_type_check /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/screen_type_check 755 0 0
+file /res/customconfig/actions/touch_screen_tweak /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/touch_screen_tweak 755 0 0
+dir /res/customconfig/actions/push-actions 755 0 0
+file /res/customconfig/actions/push-actions/crontab_test /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/crontab_test 755 0 0
+file /res/customconfig/actions/push-actions/crontab_reset /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/crontab_reset 755 0 0
+file /res/customconfig/actions/push-actions/zipalign /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/zipalign 755 0 0
+file /res/customconfig/actions/push-actions/database_optimizing /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/database_optimizing 755 0 0
+file /res/customconfig/actions/push-actions/fix_wifi /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/fix_wifi 755 0 0
+file /res/customconfig/actions/push-actions/fix_permissions /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/fix_permissions 755 0 0
+file /res/customconfig/actions/push-actions/ad_restore /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/ad_restore 755 0 0
+file /res/customconfig/actions/push-actions/ad_update /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/ad_update 755 0 0
+file /res/customconfig/actions/push-actions/config_backup_restore /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/config_backup_restore 755 0 0
+file /res/customconfig/actions/push-actions/debug_to_sd /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/debug_to_sd 755 0 0
+file /res/customconfig/actions/push-actions/crontab_log /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/crontab_log 755 0 0
+file /res/customconfig/actions/push-actions/cortexbrain_background_process_check /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/cortexbrain_background_process_check 777 0 0
+file /res/customconfig/actions/push-actions/profile /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/profile 755 0 0
+file /res/customconfig/actions/push-actions/dualmount /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/dualmount 755 0 0
+file /res/customconfig/actions/push-actions/time_update /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/time_update 755 0 0
+file /res/customconfig/actions/push-actions/root_check /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/root_check 755 0 0
+file /res/customconfig/actions/push-actions/fix_media /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/fix_media 755 0 0
+file /res/customconfig/actions/push-actions/fix_fs_on_boot /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/fix_fs_on_boot 755 0 0
+file /res/customconfig/actions/push-actions/screen_type_check /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/screen_type_check 755 0 0
+file /res/customconfig/actions/push-actions/zramstats /home/brett/kern/usr/galaxys2_initramfs_files/res/customconfig/actions/push-actions/zramstats 755 0 0
+dir /res/misc 755 0 0
+file /res/misc/zipalign /home/brett/kern/usr/galaxys2_initramfs_files/res/misc/zipalign 755 0 0
+dir /res/misc/clean_hosts 755 0 0
+file /res/misc/clean_hosts/hosts /home/brett/kern/usr/galaxys2_initramfs_files/res/misc/clean_hosts/hosts 755 0 0
+dir /res/misc/sql 755 0 0
+file /res/misc/sql/sqlite3 /home/brett/kern/usr/galaxys2_initramfs_files/res/misc/sql/sqlite3 755 0 0
+file /res/misc/sql/libsqlite.so /home/brett/kern/usr/galaxys2_initramfs_files/res/misc/sql/libsqlite.so 755 0 0
+dir /res/misc_scripts 755 0 0
+file /res/misc_scripts/config_backup_restore /home/brett/kern/usr/galaxys2_initramfs_files/res/misc_scripts/config_backup_restore 755 0 0
+dir /modules 755 0 0
+file /modules/auth_rpcgss.ko /home/brett/kern/usr/galaxys2_initramfs_files/modules/auth_rpcgss.ko 644 0 0
+file /modules/cifs.ko /home/brett/kern/usr/galaxys2_initramfs_files/modules/cifs.ko 644 0 0
+file /modules/dhd.ko /home/brett/kern/usr/galaxys2_initramfs_files/modules/dhd.ko 644 0 0
+file /modules/lockd.ko /home/brett/kern/usr/galaxys2_initramfs_files/modules/lockd.ko 644 0 0
+file /modules/nfs.ko /home/brett/kern/usr/galaxys2_initramfs_files/modules/nfs.ko 644 0 0
+file /modules/rpcsec_gss_krb5.ko /home/brett/kern/usr/galaxys2_initramfs_files/modules/rpcsec_gss_krb5.ko 644 0 0
+file /modules/scsi_wait_scan.ko /home/brett/kern/usr/galaxys2_initramfs_files/modules/scsi_wait_scan.ko 644 0 0
+file /modules/Si4709_driver.ko /home/brett/kern/usr/galaxys2_initramfs_files/modules/Si4709_driver.ko 644 0 0
+file /modules/sunrpc.ko /home/brett/kern/usr/galaxys2_initramfs_files/modules/sunrpc.ko 644 0 0
+dir /sbin 755 0 0
+file /sbin/busybox /home/brett/kern/usr/galaxys2_initramfs_files/sbin/busybox 755 0 0
+file /sbin/fix_permissions /home/brett/kern/usr/galaxys2_initramfs_files/sbin/fix_permissions 755 0 0
+file /sbin/zram_stats_ex /home/brett/kern/usr/galaxys2_initramfs_files/sbin/zram_stats_ex 755 0 0
+dir /sbin/ext 755 0 0
+file /sbin/ext/efs-backup.sh /home/brett/kern/usr/galaxys2_initramfs_files/sbin/ext/efs-backup.sh 755 0 0
+file /sbin/ext/post-init.sh /home/brett/kern/usr/galaxys2_initramfs_files/sbin/ext/post-init.sh 755 0 0
+file /sbin/ext/install.sh /home/brett/kern/usr/galaxys2_initramfs_files/sbin/ext/install.sh 755 0 0
+file /sbin/ext/modules_recovery.sh /home/brett/kern/usr/galaxys2_initramfs_files/sbin/ext/modules_recovery.sh 755 0 0
+file /sbin/ext/run-init-scripts.sh /home/brett/kern/usr/galaxys2_initramfs_files/sbin/ext/run-init-scripts.sh 755 0 0
+file /sbin/ext/system_tune_on_init.sh /home/brett/kern/usr/galaxys2_initramfs_files/sbin/ext/system_tune_on_init.sh 755 0 0
+dir /sys 755 0 0
+dir /tmp 777 0 0
+dir /data/.siyah 777 0 0
+dir /mnt 777 0 0
+dir /mnt/.lfs 755 0 0
+file /stage1/boot.cpio /home/brett/kern/usr/initramfs/ramdisk.cpio 644 0 0
+file /stage1/recovery.cpio /home/brett/kern/usr/initramfs/aroma2.cpio 644 0 0
