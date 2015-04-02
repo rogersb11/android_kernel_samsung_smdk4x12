@@ -1,11 +1,11 @@
 #!/bin/bash
 
-TOOLCHAIN="/home/brett/Desktop/toolchains/LinaroGCC-4.9.1/bin/arm-eabi-"
-STRIP="/home/brett/Desktop/toolchains/LinaroGCC-4.9.1/bin/arm-eabi-strip"
-OUTDIR="/home/brett/shifted/out"
+TOOLCHAIN="/home/rogersb11/Desktop/toolchains/linaro-4.9.3/bin/arm-eabi-"
+STRIP="/home/rogersb11/Desktop/toolchains/linaro-4.9.3/bin/arm-eabi-strip"
+OUTDIR="/home/rogersb11/shifted/out"
 BUILD="build"
 CONFIG="cm_t0lte_defconfig"
-KERNEL_DIR="/home/brett/shifted"
+KERNEL_DIR="/home/rogersb11/shifted"
 CURRENTDATE=$(date +"%m-%d")
 
 
@@ -44,6 +44,6 @@ echo "Building Shift T0LTE Kernel..."
 		cp boot.img ${OUTDIR}
 		cd ${OUTDIR}
 		echo "Creating Shift CWM kernel zip..."
-		zip -r Shift-LP-4.4.zip ./ -x *.zip *.gitignore
+		zip -r Shift-3.9.zip ./ -x *.zip *.gitignore
 
 echo "Done!"
