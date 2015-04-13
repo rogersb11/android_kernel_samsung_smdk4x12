@@ -1,12 +1,12 @@
 #!/bin/bash
 
-TOOLCHAIN="/home/brett/Desktop/toolchains/LinaroGCC/bin/arm-eabi-"
-STRIP="/home/brett/Desktop/toolchains/LinaroGCC/bin/arm-eabi-strip"
-OUTDIR="/home/brett/shifted/out2"
+TOOLCHAIN="/home/rogersb11/Desktop/toolchains/linaro-4.9.3/bin/arm-eabi-"
+STRIP="/home/rogersb11/Desktop/toolchains/linaro-4.9.3/bin/arm-eabi-strip"
+OUTDIR="/home/rogersb11/shifted/out2"
 CONFIG="cyanogenmod_n7100_defconfig"
-MODULES=("/home/brett/shifted/arch/arm/mvp/commkm/commkm.ko" "/home/brett/shifted/arch/arm/mvp/mvpkm/mvpkm.ko" "/home/brett/shifted/arch/arm/mvp/pvtcpkm/pvtcpkm.ko" "drivers/interceptor/vpnclient.ko" "drivers/net/wireless/bcmdhd/dhd.ko" "drivers/new/wireless/btlock/btlock.ko" "drivers/scsi/scsi_wait_scan.ko" "/home/brett/shifted/fs/cifs/cifs.ko")
-KERNEL_DIR="/home/brett/shifted"
-MODULES_DIR="/home/brett/Desktop/out/lib/modules"
+MODULES=("/home/rogersb11/shifted/arch/arm/mvp/commkm/commkm.ko" "/home/rogersb11/shifted/arch/arm/mvp/mvpkm/mvpkm.ko" "/home/rogersb11/shifted/arch/arm/mvp/pvtcpkm/pvtcpkm.ko" "drivers/net/wireless/bcmdhd/dhd.ko" "drivers/scsi/scsi_wait_scan.ko" "/home/rogersb11/shifted/fs/cifs/cifs.ko")
+KERNEL_DIR="/home/rogersb11/shifted"
+MODULES_DIR="/home/rogersb11/shifted/out2/system/lib/modules"
 CURRENTDATE=$(date +"%m-%d")
 
 
@@ -47,6 +47,6 @@ echo "Building CWM Kernel..."
 		cp arch/arm/boot/zImage ${OUTDIR}
 		cd ${OUTDIR}
 		echo "Creating Shift CWM kernel zip..."
-		zip -r Shift-4.8-CM.zip ./ -x *.zip *.gitignore
+		zip -r Shift-LP-5.2-N7100.zip ./ -x *.zip *.gitignore
 
 echo "Done!"
