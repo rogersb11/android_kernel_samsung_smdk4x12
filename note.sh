@@ -1,7 +1,7 @@
 #!/bin/bash
 
-TOOLCHAIN="/home/rogersb11/Desktop/toolchains/linaro-4.9.3/bin/arm-eabi-"
-STRIP="/home/rogersb11/Desktop/toolchains/linaro-4.9.3/bin/arm-eabi-strip"
+TOOLCHAIN="/home/rogersb11/Desktop/toolchains/Linaro-a9-4.9.3/bin/arm-cortex_a9-linux-gnueabihf-"
+STRIP="/home/rogersb11/Desktop/toolchains/Linaro-a9-4.9.3/bin/arm-cortex_a9-linux-gnueabihf-strip"
 OUTDIR="/home/rogersb11/shifted/out"
 BUILD="build"
 CONFIG="cm_t0lte_defconfig"
