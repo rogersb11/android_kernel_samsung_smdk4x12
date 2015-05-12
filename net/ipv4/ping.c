@@ -157,6 +157,7 @@ void ping_unhash(struct sock *sk)
 		sk_nulls_node_init(&sk->sk_nulls_node);
 		sock_put(sk);
 		isk->inet_num = isk->inet_sport = 0;
+		sk_nulls_node_init(&sk->sk_nulls_node);
 		sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
 		write_unlock_bh(&ping_table.lock);
 	}
