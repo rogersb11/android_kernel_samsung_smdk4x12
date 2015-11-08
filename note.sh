@@ -4,7 +4,7 @@ TOOLCHAIN="/home/rogersb11/Desktop/toolchains/Linaro-a9-4.9.3/bin/arm-cortex_a9-
 STRIP="/home/rogersb11/Desktop/toolchains/Linaro-a9-4.9.3/bin/arm-cortex_a9-linux-gnueabihf-strip"
 OUTDIR="/home/rogersb11/shifted/out"
 BUILD="build"
-CONFIG="cm_t0lte_defconfig"
+CONFIG="shift_t0lte_defconfig"
 KERNEL_DIR="/home/rogersb11/shifted"
 CURRENTDATE=$(date +"%m-%d")
 
