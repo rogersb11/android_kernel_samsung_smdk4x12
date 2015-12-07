@@ -398,10 +398,6 @@ static void mdm_status_fn(struct work_struct *work)
 	int value = gpio_get_value(mdm_drv->mdm2ap_status_gpio);
 
 	pr_debug("%s: status:%d\n", __func__, value);
-
-	if (mdm_drv->shutdown)
-		return;
-
 	if (mdm_drv->mdm_ready && mdm_drv->ops->status_cb)
 		mdm_drv->ops->status_cb(mdm_drv, value);
 #ifdef CONFIG_MDM_HSIC_PM
@@ -611,7 +607,6 @@ static int mdm_reboot_notifier(struct notifier_block *this,
 	int soft_reset_direction =
 		mdm_drv->pdata->soft_reset_inverted ? 1 : 0;
 	mdm_drv->mdm_ready = 0;
-	mdm_drv->shutdown = 1;
 	mdm_disable_irqs();
 	notify_modem_fatal();
 	gpio_direction_output(mdm_drv->ap2mdm_soft_reset_gpio,

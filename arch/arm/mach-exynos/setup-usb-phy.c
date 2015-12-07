@@ -1204,8 +1204,9 @@ int s5p_usb_phy_suspend(struct platform_device *pdev, int type)
 		if (soc_is_exynos4210() ||
 			soc_is_exynos4212() ||
 			soc_is_exynos4412()) {
+#if DEBUG_PRINT
 			dev_info(&pdev->dev, "host_phy_susp\n");
-
+#endif
 #ifdef CONFIG_USB_OHCI_S5P
 		if (ohci_hcd->state == HC_STATE_SUSPENDED) {
 			phyclk = readl(EXYNOS4_PHYCLK);
@@ -1241,8 +1242,9 @@ int s5p_usb_phy_resume(struct platform_device *pdev, int type)
 		if (soc_is_exynos4210() ||
 			soc_is_exynos4212() ||
 			soc_is_exynos4412()) {
+#if DEBUG_PRINT
 			dev_info(&pdev->dev, "host_phy_resume\n");
-
+#endif
 #ifdef CONFIG_USB_OHCI_S5P
 			phyclk = readl(EXYNOS4_PHYCLK);
 			phyclk |= PHY1_COMMON_ON_N;

@@ -174,8 +174,6 @@ static void mdm_do_first_power_on(struct mdm_modem_drv *mdm_drv)
 		return;
 	}
 
-	mdm_drv->shutdown = 0;
-
 	pr_err("%s: Powering on modem for the first time\n", __func__);
 	gpio_direction_output(mdm_drv->ap2mdm_wakeup_gpio, 0);
 	mdm_peripheral_disconnect(mdm_drv);
@@ -225,7 +223,9 @@ static void mdm_do_soft_power_on(struct mdm_modem_drv *mdm_drv)
 	int pblrdy;
 
 	pr_err("%s: soft resetting mdm modem\n", __func__);
-	
+	mdm_peripheral_disconnect(mdm_drv);
+	mdm_toggle_soft_reset(mdm_drv);
+
 	if (!mdm_drv->mdm2ap_pblrdy)
 		goto start_mdm_peripheral;
 
