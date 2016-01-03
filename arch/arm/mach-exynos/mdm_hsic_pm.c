@@ -100,6 +100,8 @@ struct mdm_hsic_pm_data {
 	struct notifier_block pm_notifier;
 #ifdef CONFIG_CPU_FREQ_TETHERING
 	struct notifier_block netdev_notifier;
+#endif
+#ifdef CONFIG_USB_ANDROID_SAMSUNG_COMPOSITE
 	struct notifier_block usb_composite_notifier;
 #endif
 #ifdef CONFIG_USBIRQ_BALANCING_LTE_HIGHTP
